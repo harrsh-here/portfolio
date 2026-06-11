@@ -37,7 +37,7 @@ export default function Navbar() {
       clearTimeout(morphTimerRef.current)
       morphTimerRef.current = setTimeout(() => {
         setLabelPhase('morph')
-        setTimeout(() => setLabelPhase('idle'), 500)
+        setTimeout(() => setLabelPhase('idle'), 800)
       }, 1800)
     } else {
       setLabelPhase('name') // AmethystFalls stays in 'name' forever
@@ -187,7 +187,7 @@ export default function Navbar() {
         const time = Date.now() * 0.0005
         ctx.beginPath()
         for (let x = 0; x <= W; x += 10) {
-          const y = H/2 + Math.sin(x * 0.01 + time) * 12 + Math.sin(x * 0.02 - time * 0.8) * 6
+          const y = H / 2 + Math.sin(x * 0.01 + time) * 12 + Math.sin(x * 0.02 - time * 0.8) * 6
           if (x === 0) ctx.moveTo(x, y)
           else ctx.lineTo(x, y)
         }
@@ -197,7 +197,7 @@ export default function Navbar() {
 
         ctx.beginPath()
         for (let x = 0; x <= W; x += 10) {
-          const y = H/2 + Math.cos(x * 0.015 - time * 1.2) * 15 + Math.sin(x * 0.008 + time) * 8
+          const y = H / 2 + Math.cos(x * 0.015 - time * 1.2) * 15 + Math.sin(x * 0.008 + time) * 8
           if (x === 0) ctx.moveTo(x, y)
           else ctx.lineTo(x, y)
         }
@@ -209,7 +209,7 @@ export default function Navbar() {
         const time = Date.now() * 0.0008
         ctx.beginPath()
         for (let x = 0; x <= W; x += 5) {
-          const y = H/2 + Math.sin(x * 0.05 + time) * 8 + Math.cos(x * 0.08 - time * 1.5) * 4
+          const y = H / 2 + Math.sin(x * 0.05 + time) * 8 + Math.cos(x * 0.08 - time * 1.5) * 4
           if (x === 0) ctx.moveTo(x, y)
           else ctx.lineTo(x, y)
         }
@@ -428,7 +428,7 @@ export default function Navbar() {
           className="max-w-[1200px] mx-auto flex items-center justify-between"
           style={{ height: '70px', padding: '0 40px', position: 'relative', zIndex: 1 }}>
 
-          <Link to="/" 
+          <Link to="/"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             style={{
               fontFamily: '"Chakra Petch", sans-serif', fontWeight: 500, fontSize: '1.55rem', textTransform: 'lowercase',

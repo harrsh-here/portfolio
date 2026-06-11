@@ -27,8 +27,8 @@
   --border-accent: var(--accent-glow);
   --bg-nav: rgba(17, 21, 32, 0.85);
   --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'DM Sans', sans-serif;
-  --font-display: 'Syne', sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Inter', system-ui, sans-serif;
   --mx: 50%;
   --my: 50%;
 }
@@ -48,8 +48,8 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
   overflow-x: hidden;
   max-width: 100vw;
   user-select: none;
@@ -371,14 +371,18 @@ section {
 .glow-border {
   position: relative;
   border-radius: 10px;
-  padding: 0;
+  padding: 1.5px;
   display: inline-flex;
+}
+/* Exception: SPP prediction button parent */
+.glow-border:has(> #btn-predict) {
+  padding: 0;
 }
 .glow-border::after {
   content: '';
   position: absolute;
-  inset: -1px 1px;
-  border-radius: 11px;
+  inset: 0;
+  border-radius: 10px;
   background: conic-gradient(
     from var(--angle),
     transparent 70%,
@@ -391,6 +395,11 @@ section {
   transition: opacity 0.25s ease;
   z-index: 0;
   pointer-events: none;
+}
+/* Exception: SPP prediction button inset fallback */
+.glow-border:has(> #btn-predict)::after {
+  inset: -1px 1px;
+  border-radius: 12px;
 }
 .glow-border:hover::after {
   opacity: 1;
@@ -619,6 +628,26 @@ input[type=range]::-moz-range-thumb {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes glitch-in-out {
+  0% { transform: translate(0) skew(0deg); opacity: 0; clip-path: inset(0 0 0 0); }
+  2% { transform: translate(-30px, 15px) skew(30deg); opacity: 0.8; clip-path: inset(20% 0 60% 0); }
+  4% { transform: translate(30px, -15px) skew(-30deg); opacity: 1; clip-path: inset(60% 0 20% 0); }
+  6% { transform: translate(-15px, 10px) skew(15deg); clip-path: inset(40% 0 40% 0); }
+  8% { transform: translate(0) skew(0deg); clip-path: inset(0 0 0 0); }
+
+  10% { transform: translate(0); opacity: 1; clip-path: inset(0 0 0 0); }
+  90% { transform: translate(0); opacity: 1; clip-path: inset(0 0 0 0); }
+
+  92% { transform: translate(30px, -15px) skew(-30deg); opacity: 0.8; clip-path: inset(20% 0 60% 0); }
+  94% { transform: translate(-30px, 15px) skew(30deg); opacity: 0.5; clip-path: inset(60% 0 20% 0); }
+  96% { transform: translate(15px, -10px) skew(-15deg); opacity: 0.2; clip-path: inset(40% 0 40% 0); }
+  100% { transform: translate(0) skew(0deg); opacity: 0; clip-path: inset(0 0 0 0); }
+}
+
+.animate-tech-flash {
+  animation: glitch-in-out 5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
 .focus-glow:focus-within {
@@ -1008,7 +1037,7 @@ input[type=range]::-moz-range-thumb {
 /* --- Movie Rec Cards (vertical poster layout) --- */
 .rec-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 20px;
 }
 @media (max-width: 640px) {
@@ -1022,7 +1051,7 @@ input[type=range]::-moz-range-thumb {
   animation: aurora 15s ease infinite;
   border: 1px solid var(--border-accent);
   border-radius: 12px;
-  padding: 32px 36px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -1039,7 +1068,7 @@ input[type=range]::-moz-range-thumb {
   background: var(--bg-surface);
   overflow: hidden;
   position: relative;
-  border-radius: 6px 6px 0 0;
+  border-radius: 12px 12px 0 0;
 }
 .rec-card__poster img {
   width: 100%;
@@ -1076,9 +1105,9 @@ input[type=range]::-moz-range-thumb {
 }
 .rec-card__title {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #ffffff;
   line-height: 1.35;
   transition: color 0.2s;
 }
@@ -1087,8 +1116,8 @@ input[type=range]::-moz-range-thumb {
 }
 .rec-card__year {
   font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: #a0aec0;
   margin-top: 3px;
 }
 .rec-card__rating {
@@ -1106,14 +1135,15 @@ input[type=range]::-moz-range-thumb {
 }
 .rec-card__tag {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 3px 7px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 2px;
-  color: var(--text-muted);
+  background: rgba(0, 212, 221, 0.1);
+  border: 1px solid rgba(0, 212, 221, 0.2);
+  border-radius: 4px;
+  color: var(--accent-cyan);
 }
 .rec-card__footer {
   display: flex;
@@ -1150,7 +1180,7 @@ input[type=range]::-moz-range-thumb {
   background: var(--bg-card);
   border: 1px solid var(--border-accent);
   border-top: none;
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 12px 12px;
   font-family: var(--font-sans);
   font-size: 12px;
   color: var(--text-secondary);

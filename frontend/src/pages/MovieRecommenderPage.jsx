@@ -13,6 +13,7 @@ import MovieRecommenderApp from '../components/MovieRecommenderApp';
 
 export default function MovieRecommenderPage() {
   const [visible, setVisible] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -209,7 +210,7 @@ export default function MovieRecommenderPage() {
                   <div className="stat-counter__label">MOVIES</div>
                 </div>
                 <div className="stat-counter">
-                  <div className="stat-counter__value">6</div>
+                  <div className="stat-counter__value">10</div>
                   <div className="stat-counter__label">TOP-N RESULTS</div>
                 </div>
               </div>
@@ -247,9 +248,19 @@ export default function MovieRecommenderPage() {
           >
             Search any movie from the ML-100k dataset
           </div>
-
+        </div>
+        
+        {/* Expanded width container for the app */}
+        <div 
+          style={{ 
+            maxWidth: isExpanded ? 1400 : 1200, 
+            margin: '0 auto', 
+            padding: '0 24px',
+            transition: 'max-width 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
           <div className="glass-panel" style={{ padding: '40px 36px' }}>
-            <MovieRecommenderApp />
+            <MovieRecommenderApp onHasResults={setIsExpanded} />
           </div>
         </div>
       </section>

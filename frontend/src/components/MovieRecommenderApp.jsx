@@ -1,9 +1,65 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Search, Film, Star, ExternalLink, RefreshCw, ChevronDown, ChevronUp, User, Calendar, AlertCircle, Zap } from 'lucide-react'
+
+const formatDisplayTitle = (title, includeYear = false) => {
+  if (!title) return ''
+  let clean = title.trim()
+  const yearMatch = clean.match(/\s\((\d{4})\)\s*$/)
+  const year = (yearMatch && includeYear) ? ` ${yearMatch[0].trim()}` : ''
+  
+  clean = clean.replace(/\s\(\d{4}\)\s*$/, '').trim()
+  clean = clean.replace(/\s*\([^)]*\)\s*$/, '').trim()
+  clean = clean.replace(/^(.*),\s*(The|A|An)$/i, '$2 $1').trim()
+  
+  return clean + year
+}
+
+const getSimilarityScore = (str1, str2) => {
+  const s1 = str1.toLowerCase()
+  const s2 = str2.toLowerCase()
+
+  if (s1 === s2) return 1.0
+  if (s1.length === 0 || s2.length === 0) return 0.0
+
+  const track = Array(s2.length + 1).fill(null).map(() => Array(s1.length + 1).fill(null))
+  for (let i = 0; i <= s1.length; i++) track[0][i] = i
+  for (let j = 0; j <= s2.length; j++) track[j][0] = j
+
+  for (let j = 1; j <= s2.length; j++) {
+    for (let i = 1; i <= s1.length; i++) {
+      const indicator = s1[i - 1] === s2[j - 1] ? 0 : 1
+      track[j][i] = Math.min(
+        track[j][i - 1] + 1,
+        track[j - 1][i] + 1,
+        track[j - 1][i - 1] + indicator
+      )
+    }
+  }
+
+  const distance = track[s2.length][s1.length]
+  return 1 - distance / Math.max(s1.length, s2.length)
+}
+
+const findClosestMovieTitle = (inputTitle, allTitles) => {
+  let bestMatch = null
+  let highestScore = 0
+
+  for (const trueTitle of allTitles) {
+    const cleanTrueTitle = trueTitle.replace(/\s\(\d{4}\)$/, '').trim()
+    const score = getSimilarityScore(inputTitle, cleanTrueTitle)
+
+    if (score > highestScore) {
+      highestScore = score
+      bestMatch = trueTitle
+    }
+  }
+  return highestScore > 0.4 ? bestMatch : null
+}
 
 const fetchExtraDetails = async (title) => {
   try {
-    const cleanTitle = title.replace(/\s\(\d{4}\)$/, '').trim()
+    const cleanTitle = formatDisplayTitle(title)
     const apiKey = import.meta.env.VITE_OMDB_API_KEY || '968ca803' // Fallback for demo if env missing
     const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(cleanTitle)}&apikey=${apiKey}`)
     if (res.ok) return await res.json()
@@ -11,7 +67,7 @@ const fetchExtraDetails = async (title) => {
   return null
 }
 
-export default function MovieRecommenderApp() {
+export default function MovieRecommenderApp({ onHasResults }) {
   const [query, setQuery] = useState('')
   const [suggestions, setSuggestions] = useState([])
   const [loading, setLoading] = useState(false)
@@ -22,7 +78,21 @@ export default function MovieRecommenderApp() {
   const [expandedCard, setExpandedCard] = useState(null)
   const [extraData, setExtraData] = useState({})
   const [cardsVisible, setCardsVisible] = useState(false)
+  const [isBackendConnected, setIsBackendConnected] = useState(false)
+  const [showStatusOverlay, setShowStatusOverlay] = useState(false)
+  const [overlayStatus, setOverlayStatus] = useState('offline')
+  const prevConnectedRef = useRef(null)
+  
+  const [originalQuery, setOriginalQuery] = useState(null)
   const suggestionRef = useRef(null)
+  const searchInputRef = useRef(null)
+  const resultsRef = useRef(null)
+
+  useEffect(() => {
+    if (onHasResults) {
+      onHasResults(recommendations.length > 0)
+    }
+  }, [recommendations.length, onHasResults])
 
   const API_BASE_URL = import.meta.env.VITE_MOVIE_API_URL || 'http://localhost:8000'
 
@@ -34,35 +104,62 @@ export default function MovieRecommenderApp() {
     'Matrix, The (1999)'
   ]
 
-  const MOCK_MOVIES = [
-    'Toy Story (1995)', 'GoldenEye (1995)', 'Star Wars (1977)',
-    'Get Shorty (1995)', 'Twelve Monkeys (1995)', 'Blade Runner (1982)',
-    'Alien (1979)', 'Matrix, The (1999)', 'Fargo (1996)'
-  ]
-
-  const MOCK_RECS = [
-    { id: 101, title: 'Empire Strikes Back, The (1980)', genres: ['Action', 'Adventure', 'Sci-Fi'], average_rating: 4.29 },
-    { id: 102, title: 'Return of the Jedi (1983)', genres: ['Action', 'Adventure', 'Sci-Fi'], average_rating: 4.01 },
-    { id: 103, title: 'Raiders of the Lost Ark (1981)', genres: ['Action', 'Adventure'], average_rating: 4.25 },
-    { id: 104, title: 'Blade Runner (1982)', genres: ['Action', 'Sci-Fi', 'Thriller'], average_rating: 4.10 },
-    { id: 105, title: 'Terminator 2: Judgment Day (1991)', genres: ['Action', 'Sci-Fi'], average_rating: 3.97 },
-    { id: 106, title: 'Alien (1979)', genres: ['Action', 'Horror', 'Sci-Fi'], average_rating: 3.95 }
-  ]
+  const triggerOverlay = (status) => {
+    setOverlayStatus(status)
+    setShowStatusOverlay(true)
+    setTimeout(() => setShowStatusOverlay(false), 5000)
+  }
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    let isSubscribed = true
+    let timerId = null
+
+    const fetchMoviesData = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/movies`)
         if (res.ok) {
           const data = await res.json()
-          setAllMovies(data)
+          if (isSubscribed) setAllMovies(data)
+        }
+      } catch (err) {}
+    }
+
+    const pollHealth = async () => {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const res = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal })
+        clearTimeout(timeoutId)
+        if (res.ok) {
+          if (!isSubscribed) return
+          setIsBackendConnected(true)
+          if (prevConnectedRef.current === false) {
+            triggerOverlay('online')
+            fetchMoviesData()
+          }
+          prevConnectedRef.current = true
         }
       } catch (err) {
-        console.warn('Backend unavailable, using mock movie list')
-        setAllMovies(MOCK_MOVIES)
+        if (!isSubscribed) return
+        setIsBackendConnected(false)
+        if (prevConnectedRef.current === true) {
+          triggerOverlay('offline')
+        }
+        prevConnectedRef.current = false
+      } finally {
+        if (isSubscribed) {
+          timerId = setTimeout(pollHealth, 1500)
+        }
       }
     }
-    fetchMovies()
+    
+    fetchMoviesData()
+    pollHealth()
+
+    return () => {
+      isSubscribed = false
+      if (timerId) clearTimeout(timerId)
+    }
   }, [])
 
   useEffect(() => {
@@ -80,7 +177,7 @@ export default function MovieRecommenderApp() {
     setQuery(val)
     if (val.length > 1) {
       const filtered = allMovies
-        .filter(m => m.toLowerCase().includes(val.toLowerCase()))
+        .filter(m => m.toLowerCase().includes(val.toLowerCase()) || formatDisplayTitle(m, true).toLowerCase().includes(val.toLowerCase()))
         .slice(0, 8)
       setSuggestions(filtered)
       setShowSuggestions(true)
@@ -92,6 +189,17 @@ export default function MovieRecommenderApp() {
 
   const handleGetRecommendations = async (movieTitle = query) => {
     if (!movieTitle) return
+    
+    if (!isBackendConnected) {
+      setError('The inference server is offline. Please wait for the model to come online and try again.')
+      if (resultsRef.current) {
+        setTimeout(() => {
+          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
+      }
+      return
+    }
+
     setLoading(true)
     setError(null)
     setShowSuggestions(false)
@@ -100,11 +208,20 @@ export default function MovieRecommenderApp() {
     setExpandedCard(null)
     setExtraData({})
 
+    // Apply fuzzy matching autocorrection
+    const correctedTitle = findClosestMovieTitle(movieTitle, allMovies) || movieTitle
+    if (correctedTitle !== movieTitle) {
+      setOriginalQuery(movieTitle)
+    } else {
+      setOriginalQuery(null)
+    }
+    setQuery(formatDisplayTitle(correctedTitle, true))
+
     try {
       const res = await fetch(`${API_BASE_URL}/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ movie_title: movieTitle, num_recommendations: 6 })
+        body: JSON.stringify({ movie_title: correctedTitle, num_recommendations: 10 })
       })
 
       if (!res.ok) throw new Error('Movie not found in dataset')
@@ -120,20 +237,21 @@ export default function MovieRecommenderApp() {
         }
       })
 
-      setTimeout(() => setCardsVisible(true), 50)
+      setTimeout(() => {
+        setCardsVisible(true)
+        if (resultsRef.current) {
+          // Add a tiny delay so the DOM has a moment to expand
+          setTimeout(() => {
+            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }, 100)
+        }
+      }, 50)
     } catch (err) {
-      // Try mock data as fallback
-      if (allMovies.length <= MOCK_MOVIES.length) {
-        setRecommendations(MOCK_RECS)
-        MOCK_RECS.forEach(async (m) => {
-          const details = await fetchExtraDetails(m.title)
-          if (details && details.Response !== 'False') {
-            setExtraData(prev => ({ ...prev, [m.id]: details }))
-          }
-        })
-        setTimeout(() => setCardsVisible(true), 50)
-      } else {
-        setError('Movie not found or the inference server is offline. Please try another title or check back later.')
+      setError('Movie not found or the inference server is offline. Please try another title or check back later.')
+      if (resultsRef.current) {
+        setTimeout(() => {
+          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
       }
     } finally {
       setLoading(false)
@@ -146,7 +264,12 @@ export default function MovieRecommenderApp() {
     setError(null)
     setExpandedCard(null)
     setExtraData({})
+    setOriginalQuery(null)
     setCardsVisible(false)
+    if (searchInputRef.current) {
+      searchInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setTimeout(() => searchInputRef.current?.focus(), 500)
+    }
   }
 
   // ─── Skeleton Card ───
@@ -168,7 +291,37 @@ export default function MovieRecommenderApp() {
   )
 
   return (
-    <div className="flex flex-col gap-12 w-full" style={{ padding: '32px 32px' }}>
+    <div className="flex flex-col gap-12 w-full relative" style={{ padding: '32px 32px' }}>
+      
+      {/* ━━━ HUD Overlay ━━━ */}
+      {showStatusOverlay && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+          <div className={`
+            relative flex flex-col items-center justify-center
+            w-[420px] h-[160px] rounded-2xl border
+            ${overlayStatus === 'online' 
+              ? 'bg-green-500/10 border-green-500/40 shadow-[0_0_60px_rgba(34,197,94,0.15)] text-green-400' 
+              : 'bg-red-500/10 border-red-500/40 shadow-[0_0_60px_rgba(239,68,68,0.15)] text-red-400'
+            }
+            backdrop-blur-md animate-tech-flash
+          `}>
+            <div className="text-3xl font-black uppercase tracking-[0.3em] mb-2" style={{ fontFamily: 'var(--font-mono)', textShadow: `0 0 15px currentColor` }}>
+              {overlayStatus === 'online' ? 'System Online' : 'System Offline'}
+            </div>
+            <div className="text-[10px] uppercase tracking-[0.25em] opacity-80" style={{ fontFamily: 'var(--font-mono)' }}>
+              {overlayStatus === 'online' ? 'Inference Engine Connected' : 'Connection Lost'}
+            </div>
+            
+            {/* HUD Corners */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-current opacity-60 m-3" />
+            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-current opacity-60 m-3" />
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-current opacity-60 m-3" />
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-current opacity-60 m-3" />
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* ━━━ Search Section ━━━ */}
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1" style={{ padding: '0 4px' }}>
@@ -192,6 +345,7 @@ export default function MovieRecommenderApp() {
             </div>
 
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search for a movie title..."
               value={query}
@@ -201,33 +355,17 @@ export default function MovieRecommenderApp() {
               style={{ fontFamily: 'var(--font-sans)', padding: '18px 8px 18px 14px' }}
             />
 
-            <div className="glow-border shrink-0 h-[58px]" style={{ borderRadius: '0 12px 12px 0' }}>
+            <div className="shrink-0 h-[58px]">
               <button
                 id="movie-rec-search-btn"
                 onClick={() => handleGetRecommendations()}
-                disabled={loading || !query}
-                className="glow-inner w-full h-full flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-20 active:scale-95"
+                disabled={loading || !query || !isBackendConnected}
+                className="w-full h-full flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-[var(--bg-primary)] enabled:hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.4),_0_0_25px_var(--accent-cyan)] enabled:hover:brightness-125 z-10 relative"
                 style={{ 
                   fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', 
                   padding: '0 32px', borderRadius: '0 12px 12px 0',
-                  color: 'var(--bg-primary)',
-                  background: 'var(--accent-cyan)',
-                  border: '1px solid transparent',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!loading && query) {
-                    e.currentTarget.style.background = 'var(--bg-card)';
-                    e.currentTarget.style.color = 'var(--accent-cyan)';
-                    e.currentTarget.style.border = '1px solid var(--border)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!loading && query) {
-                    e.currentTarget.style.background = 'var(--accent-cyan)';
-                    e.currentTarget.style.color = 'var(--bg-primary)';
-                    e.currentTarget.style.border = '1px solid transparent';
-                  }
+                  background: isBackendConnected ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                  borderLeft: '1px solid rgba(255,255,255,0.15)'
                 }}
               >
                 <Zap size={14} />
@@ -241,11 +379,11 @@ export default function MovieRecommenderApp() {
                 {suggestions.map((s, idx) => (
                   <button
                     key={idx}
-                    onClick={() => { setQuery(s); handleGetRecommendations(s) }}
+                    onClick={() => { setQuery(formatDisplayTitle(s, true)); handleGetRecommendations(s) }}
                     className="w-full text-left hover:bg-[var(--accent-cyan)]/10 text-[var(--text-secondary)] hover:text-[var(--accent-cyan)] border-b border-[var(--border)] last:border-0 text-xs transition-all"
                     style={{ fontFamily: 'var(--font-mono)', padding: '12px 20px' }}
                   >
-                    {s}
+                    {formatDisplayTitle(s, true)}
                   </button>
                 ))}
               </div>
@@ -261,11 +399,11 @@ export default function MovieRecommenderApp() {
             {QUICK_PICKS.map((m) => (
               <button
                 key={m}
-                onClick={() => { setQuery(m); handleGetRecommendations(m) }}
+                onClick={() => { setQuery(formatDisplayTitle(m, true)); handleGetRecommendations(m) }}
                 className="rounded-full bg-white/[0.02] border border-white/5 text-gray-500 text-[11px] hover:border-[var(--accent-cyan)]/40 hover:text-[var(--accent-cyan)] hover:bg-[var(--accent-cyan)]/5 transition-all whitespace-nowrap active:scale-95"
                 style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '10px 24px' }}
               >
-                {m}
+                {formatDisplayTitle(m, true)}
               </button>
             ))}
           </div>
@@ -273,7 +411,43 @@ export default function MovieRecommenderApp() {
       </div>
 
       {/* ━━━ Dynamic Content Area ━━━ */}
-      <div className="min-h-[350px] flex flex-col gap-6">
+      <div className="min-h-[350px] flex flex-col gap-6" ref={resultsRef}>
+
+        {/* Persistent Status & Results Header */}
+        <div className="flex items-center justify-between border-b border-white/5" style={{ paddingBottom: 16, minHeight: 48 }}>
+          <div className="flex flex-col gap-1.5">
+            {!loading && !error && recommendations.length > 0 && (
+              <>
+                <h3 style={{ fontFamily: 'var(--font-mono)' }}
+                  className="text-lg font-bold text-white flex items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan)] shadow-[0_0_8px_var(--accent-cyan)]" />
+                  Top Correlations
+                </h3>
+                <p style={{ fontFamily: 'var(--font-mono)' }}
+                  className="text-[10px] text-gray-400 uppercase tracking-widest leading-relaxed mt-1">
+                  {originalQuery ? (
+                    <>
+                      Showing results for <span className="text-[var(--accent-cyan)] font-bold">"{formatDisplayTitle(query)}"</span>
+                      <br/>
+                      <span className="text-[var(--text-muted)] text-[10px] lowercase" style={{ textTransform: 'none', letterSpacing: '0.05em' }}>
+                        (Auto-corrected from "{originalQuery}")
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[var(--text-muted)]">Based on: "{query}"</span>
+                  )}
+                </p>
+              </>
+            )}
+          </div>
+          <div className="hidden sm:flex"
+            style={{ alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 999, border: '1px solid rgba(255,255,255,0.05)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: isBackendConnected ? '#22c55e' : '#ff5f57', flexShrink: 0, boxShadow: isBackendConnected ? '0 0 8px rgba(34,197,94,0.4)' : 'none' }} />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+              {isBackendConnected ? 'Model Active' : 'Model Offline'}
+            </span>
+          </div>
+        </div>
 
         {/* LOADING: Skeleton Grid */}
         {loading && (
@@ -286,7 +460,7 @@ export default function MovieRecommenderApp() {
               </span>
             </div>
             <div className="rec-grid">
-              {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+              {[...Array(10)].map((_, i) => <SkeletonCard key={i} />)}
             </div>
           </div>
         )}
@@ -311,26 +485,6 @@ export default function MovieRecommenderApp() {
         {/* RESULTS */}
         {!loading && !error && recommendations.length > 0 && (
           <>
-            {/* Results Header */}
-            <div className="flex items-center justify-between border-b border-white/5" style={{ paddingBottom: 16 }}>
-              <div className="flex flex-col gap-1.5">
-                <h3 style={{ fontFamily: 'var(--font-mono)' }}
-                  className="text-lg font-bold text-white flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[var(--accent-cyan)] shadow-[0_0_8px_var(--accent-cyan)]" />
-                  Top Correlations
-                </h3>
-                <p style={{ fontFamily: 'var(--font-mono)' }}
-                  className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest">
-                  Based on: "{query}"
-                </p>
-              </div>
-              <div className="hidden sm:flex"
-                style={{ alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 999, border: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em' }}>Model Active</span>
-              </div>
-            </div>
-
             {/* Cards Grid */}
             <div className="rec-grid">
               {recommendations.map((movie, idx) => {
@@ -361,7 +515,7 @@ export default function MovieRecommenderApp() {
 
                     {/* Body */}
                     <div className="rec-card__body">
-                      <div className="rec-card__title">{movie.title}</div>
+                      <div className="rec-card__title">{formatDisplayTitle(movie.title)}</div>
                       <div className="rec-card__year">
                         {details?.Year && details.Year !== 'N/A'
                           ? details.Year + (details.Runtime && details.Runtime !== 'N/A' ? ' · ' + details.Runtime : '')

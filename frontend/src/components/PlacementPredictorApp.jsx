@@ -10,7 +10,26 @@ export default function PlacementPredictorApp() {
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
   const [ringOffset, setRingOffset] = useState(439.82);
+  const [isBackendConnected, setIsBackendConnected] = useState(false);
   const progressRef = useRef(null);
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const res = await fetch(`${API_URL}/health`, { signal: controller.signal })
+        clearTimeout(timeoutId)
+        if (res.ok) setIsBackendConnected(true)
+        else setIsBackendConnected(false)
+      } catch (err) {
+        setIsBackendConnected(false)
+      }
+    }
+    checkHealth()
+    const intervalId = setInterval(checkHealth, 5000)
+    return () => clearInterval(intervalId)
+  }, []);
 
   const CIRCUMFERENCE = 2 * Math.PI * 70; // 439.82
 
@@ -78,7 +97,20 @@ export default function PlacementPredictorApp() {
   const accentColor = isPlaced ? '#00cc44' : '#ff5f57';
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div style={{ fontFamily: 'var(--font-sans)' }} className="w-full">
+      {/* ── HEADER WITH BADGE ── */}
+      <div className="flex items-center justify-between" style={{ marginBottom: 28 }}>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.2em' }}>
+          Logistic Regression
+        </div>
+        <div className="hidden sm:flex"
+          style={{ alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(255,255,255,0.03)', borderRadius: 999, border: '1px solid rgba(255,255,255,0.05)' }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isBackendConnected ? '#22c55e' : '#ff5f57', flexShrink: 0, boxShadow: isBackendConnected ? '0 0 8px rgba(34,197,94,0.4)' : 'none' }} />
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+            {isBackendConnected ? 'Model Active' : 'Model Offline'}
+          </span>
+        </div>
+      </div>
 
       {/* ── ERROR BANNER ── */}
       {error && (
@@ -277,6 +309,7 @@ export default function PlacementPredictorApp() {
               <button
                 id="btn-predict"
                 onClick={handlePredict}
+                disabled={!isBackendConnected}
                 style={{
                   border: '1px solid var(--border-accent)',
                   borderRadius: 11,
@@ -286,7 +319,8 @@ export default function PlacementPredictorApp() {
                   fontWeight: 700,
                   letterSpacing: '0.08em',
                   padding: '16px 48px',
-                  cursor: 'pointer',
+                  cursor: isBackendConnected ? 'pointer' : 'not-allowed',
+                  opacity: isBackendConnected ? 1 : 0.5,
                   textTransform: 'uppercase',
                   transition: 'all 0.3s ease',
                 }}
