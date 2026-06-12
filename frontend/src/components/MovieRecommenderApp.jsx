@@ -148,7 +148,9 @@ export default function MovieRecommenderApp({ onHasResults }) {
         prevConnectedRef.current = false
       } finally {
         if (isSubscribed) {
-          timerId = setTimeout(pollHealth, 15000)
+          // Dynamic polling: if connected, check only every 2 minutes. If offline, check every 10 seconds.
+          const nextInterval = prevConnectedRef.current ? 120000 : 10000;
+          timerId = setTimeout(pollHealth, nextInterval)
         }
       }
     }

@@ -13,22 +13,32 @@ export default function PlacementPredictorApp() {
   const [isBackendConnected, setIsBackendConnected] = useState(false);
   const progressRef = useRef(null);
 
+  const connectedRef = useRef(false);
   useEffect(() => {
+    let timerId;
     const checkHealth = async () => {
       try {
         const controller = new AbortController()
         const timeoutId = setTimeout(() => controller.abort(), 8000)
         const res = await fetch(`${API_URL}/health`, { signal: controller.signal })
         clearTimeout(timeoutId)
-        if (res.ok) setIsBackendConnected(true)
-        else setIsBackendConnected(false)
+        if (res.ok) {
+          setIsBackendConnected(true)
+          connectedRef.current = true
+        } else {
+          setIsBackendConnected(false)
+          connectedRef.current = false
+        }
       } catch (err) {
         setIsBackendConnected(false)
+        connectedRef.current = false
+      } finally {
+        // Dynamic polling: 2 minutes if connected, 10 seconds if offline
+        timerId = setTimeout(checkHealth, connectedRef.current ? 120000 : 10000)
       }
     }
     checkHealth()
-    const intervalId = setInterval(checkHealth, 15000)
-    return () => clearInterval(intervalId)
+    return () => clearTimeout(timerId)
   }, []);
 
   const CIRCUMFERENCE = 2 * Math.PI * 70; // 439.82

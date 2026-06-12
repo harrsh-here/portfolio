@@ -156,7 +156,6 @@ export default function MovieRecommenderPage() {
                     padding: '13px 28px',
                     textDecoration: 'none',
                     textTransform: 'uppercase',
-                    transition: 'all 0.25s ease',
                   }}
                 >
                   Try Live Demo ↓
