@@ -3,5 +3,5 @@ uvicorn
 scikit-learn
 pandas
 numpy
-jinja2
 httpx
+joblib
