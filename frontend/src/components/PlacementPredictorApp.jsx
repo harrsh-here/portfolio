@@ -72,8 +72,17 @@ export default function PlacementPredictorApp() {
 
   async function handlePredict() {
     if (!isBackendConnected) {
-      setError('System Offline: Backend server is unreachable.');
-      return;
+      try {
+        const res = await fetch(`${API_URL}/health`);
+        if (res.ok) {
+          setIsBackendConnected(true);
+        } else {
+          throw new Error('Offline');
+        }
+      } catch (err) {
+        setError('System Offline: Backend server is unreachable.');
+        return;
+      }
     }
     setError(null);
     setPhase('loading');

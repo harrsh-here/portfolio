@@ -3,7 +3,7 @@ import { ArrowRight, ExternalLink } from 'lucide-react'
 
 export default function ProjectCard({ project, featured = false, style = {} }) {
   const statusColor =
-    project.status === 'Live' ? '#28c840' :
+    (project.status === 'Live' || project.status === 'Complete') ? '#28c840' :
     project.status === 'In Progress' ? '#fbbf24' : '#febc2e'
 
   const badgeColors = {
@@ -18,34 +18,38 @@ export default function ProjectCard({ project, featured = false, style = {} }) {
   return (
     <div className="relative h-full w-full card-accent"
       style={{ ...style }}>
-      {featured && (
-        <span className="absolute top-5 right-5 text-xs rounded-full font-medium"
-          style={{
-            backgroundColor: badgeStyle.bg,
-            color: badgeStyle.color,
-            fontFamily: 'var(--font-mono)',
-            fontSize: 10, letterSpacing: '0.08em',
-            padding: '5px 14px',
-            border: `1px solid ${badgeStyle.border}`,
-          }}>
-          {badge}
-        </span>
-      )}
+      {/* Top Header: Tags & Badge */}
+      <div className="flex justify-between items-start mb-5 gap-3">
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2">
+          {project.tags.map((t) => (
+            <span key={t} className="text-xs rounded-md font-medium"
+              style={{
+                padding: '5px 12px',
+                backgroundColor: 'var(--accent-glow)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-accent)',
+                fontFamily: 'var(--font-sans)',
+              }}>
+              {t}
+            </span>
+          ))}
+        </div>
 
-      {/* Tags — single row, brighter */}
-      <div className="flex flex-wrap mb-5" style={{ gap: '8px' }}>
-        {project.tags.map((t) => (
-          <span key={t} className="text-xs rounded-md font-medium"
+        {/* Badge */}
+        {featured && (
+          <span className="shrink-0 text-xs rounded-full font-medium"
             style={{
-              padding: '5px 12px',
-              backgroundColor: 'var(--accent-glow)',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-accent)',
-              fontFamily: 'var(--font-sans)',
+              backgroundColor: badgeStyle.bg,
+              color: badgeStyle.color,
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10, letterSpacing: '0.08em',
+              padding: '5px 14px',
+              border: `1px solid ${badgeStyle.border}`,
             }}>
-            {t}
+            {badge}
           </span>
-        ))}
+        )}
       </div>
 
       <h3 className={`font-bold ${featured ? 'text-2xl md:text-3xl' : 'text-lg'}`}

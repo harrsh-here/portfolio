@@ -101,7 +101,7 @@ export default function ExperienceTimeline() {
               }}>
               <div className="timeline-dot absolute rounded-full"
                 style={{
-                  left: '-27px', top: '4px',
+                  left: '-28px', top: '4px',
                   width: '14px', height: '14px',
                   background: '#222',
                   border: '2px solid #333',
@@ -109,32 +109,36 @@ export default function ExperienceTimeline() {
                   transition: 'all 0.4s ease',
                 }} />
 
-              <div>
-                <div className="flex flex-wrap items-center gap-3 mb-2">
+              <div className="pr-6 md:pr-0">
+                <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-3 mb-2">
                   <h3 className="text-base md:text-lg font-semibold"
                     style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                     {entry.title}
                   </h3>
-                  {entry.tags && entry.tags.map(tag => {
-                    const style = getTagStyle(tag);
-                    return (
-                      <span key={tag} className="inline-block font-medium"
-                        style={{
-                          padding: '6px 11px', /* Adjust this for height and width! */
-                          borderRadius: '60px', /* Adjust this for corner rounding! */
-                          fontSize: '12px',
-                          backgroundColor: style.bg,
-                          border: `1.5px solid ${style.border}`,
-                          color: style.color,
-                          fontFamily: 'var(--font-sans)',
-                          letterSpacing: '0.02em'
-                        }}>
-                        {tag}
-                      </span>
-                    )
-                  })}
+                  {entry.tags && entry.tags.length > 0 && (
+                    <div className="flex flex-row flex-wrap items-center gap-2 md:gap-3">
+                      {entry.tags.map(tag => {
+                        const style = getTagStyle(tag);
+                        return (
+                          <span key={tag} className="inline-block font-medium shrink-0"
+                            style={{
+                              padding: '6px 11px', /* Adjust this for height and width! */
+                              borderRadius: '60px', /* Adjust this for corner rounding! */
+                              fontSize: '12px',
+                              backgroundColor: style.bg,
+                              border: `1.5px solid ${style.border}`,
+                              color: style.color,
+                              fontFamily: 'var(--font-sans)',
+                              letterSpacing: '0.02em'
+                            }}>
+                            {tag}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm mb-3"
+                <p className="text-sm mb-4 md:mb-3"
                   style={{ fontFamily: 'var(--font-sans)', color: 'var(--text-muted)' }}>
                   {entry.date}{entry.location ? ` · ${entry.location}` : ''}
                 </p>

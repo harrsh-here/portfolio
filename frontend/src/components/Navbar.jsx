@@ -576,25 +576,18 @@ export default function Navbar() {
                         }} />
 
                         <span
-                          className={isAmethystKey && !isActive ? 'amethyst-dropdown-idle' : ''}
+                          className={isAmethystKey ? (isActive ? 'amethyst-shimmer' : 'amethyst-idle-text') : ''}
                           style={{
                             fontWeight: isActive ? 600 : 400,
                             fontSize: '0.85rem',
                             letterSpacing: isAmethystKey ? '0.08em' : '0.01em',
                             fontFamily: 'var(--font-display)',
                             fontStyle: isAmethystKey ? 'italic' : 'normal',
-                            ...(isActive && isAmethystKey ? {
-                              background: 'linear-gradient(90deg, #a855f7, #e879f9, #f0abfc)',
-                              WebkitBackgroundClip: 'text',
-                              WebkitTextFillColor: 'transparent',
-                              backgroundClip: 'text',
-                            } : isActive ? {
+                            ...(isAmethystKey ? {} : isActive ? {
                               background: `linear-gradient(90deg, ${themes[key].colors['--accent-cyan']}, #fff)`,
                               WebkitBackgroundClip: 'text',
                               WebkitTextFillColor: 'transparent',
                               backgroundClip: 'text',
-                            } : isAmethystKey ? {
-                              color: '#a855f7',
                             } : {
                               color: 'var(--text-secondary)',
                             }),
@@ -633,24 +626,69 @@ export default function Navbar() {
         <div className="md:hidden fixed right-0 w-64 transition-transform duration-200 z-50"
           style={{
             top: '70px', height: 'calc(100vh - 70px)',
-            backgroundColor: 'var(--bg-nav)',
-            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            backgroundColor: 'var(--bg-surface)',
             borderLeft: '1px solid var(--border-accent)',
+            boxShadow: isAmethyst ? '-10px 0 50px rgba(168,85,247,0.15)' : '-10px 0 30px rgba(0,0,0,0.6)',
             transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
           }}>
-          <div className="flex flex-col gap-6 p-8">
-            {navLinks.map((link) => (
-              <Link key={link.to} to={link.to}
-                className="text-lg font-medium transition-colors duration-200"
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  color: location.pathname === link.to
-                    ? 'var(--accent-cyan)'
-                    : 'var(--text-secondary)',
-                }}>
-                {link.label}
-              </Link>
-            ))}
+          <div className="flex flex-col gap-6" style={{ padding: '32px 28px' }}>
+            <div className="flex flex-col gap-6 pb-6 border-b border-white/10">
+              {navLinks.map((link) => (
+                <Link key={link.to} to={link.to}
+                  className="text-lg font-medium transition-colors duration-200"
+                  style={{
+                    fontFamily: 'var(--font-sans)',
+                    color: location.pathname === link.to
+                      ? 'var(--accent-cyan)'
+                      : 'var(--text-secondary)',
+                  }}
+                  onClick={() => setMenuOpen(false)}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <span className="text-xs font-mono text-[var(--accent-cyan)] tracking-widest uppercase">Select Theme</span>
+              <div className="flex flex-col gap-1">
+                {Object.keys(themes).map((key) => {
+                  const isActive = activeTheme === key;
+                  const isAmethystKey = key === 'amethyst';
+                  return (
+                    <button key={key} onClick={() => { setActiveTheme(key); setMenuOpen(false); }}
+                      className="text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 hover:bg-white/5"
+                      style={{
+                        backgroundColor: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
+                      }}>
+                      <span className={`w-2 h-2 rounded-full transition-all duration-300 ${isActive ? 'scale-100' : 'scale-0'}`}
+                        style={{
+                          backgroundColor: 'var(--accent-cyan)',
+                          boxShadow: isActive ? '0 0 8px var(--accent-cyan)' : 'none'
+                        }} />
+                      <span
+                        className={isAmethystKey ? (isActive ? 'amethyst-shimmer' : 'amethyst-idle-text') : ''}
+                        style={{
+                          fontWeight: isActive ? 600 : 400,
+                          fontSize: '0.9rem',
+                          letterSpacing: isAmethystKey ? '0.08em' : '0.02em',
+                          fontFamily: 'var(--font-display)',
+                          fontStyle: isAmethystKey ? 'italic' : 'normal',
+                          ...(isAmethystKey ? {} : isActive ? {
+                            background: `linear-gradient(90deg, ${themes[key].colors['--accent-cyan']}, #fff)`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          } : {
+                            color: 'var(--text-secondary)',
+                          }),
+                        }}>
+                        {themes[key].name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 

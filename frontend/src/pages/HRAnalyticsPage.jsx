@@ -103,9 +103,9 @@ export default function HRAnalyticsPage() {
             <span style={{ color: 'var(--text-secondary)' }}>HR ANALYTICS DASHBOARD</span>
           </nav>
 
-          <div className="hero-split">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start md:items-center w-full overflow-hidden min-w-0">
             {/* ── Left Column ── */}
-            <div>
+            <div className="mb-10 md:mb-0">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
                 <span className="tag-pill-v2 tag-pill-v2--purple">DATA ANALYTICS</span>
                 <span className="tag-pill-v2">POWER BI</span>
@@ -167,12 +167,12 @@ export default function HRAnalyticsPage() {
             <div style={{ position: 'relative' }}>
               <div className="chapter-marker">03</div>
               <div style={{ marginBottom: 32 }}>
-                <div className="status-badge">
-                  <span className="status-badge__dot" style={{ background: '#a78bfa' }} />
+                <div className="status-badge" style={{ color: '#a78bfa', border: '1px solid rgba(167, 139, 250, 0.15)', background: 'rgba(167, 139, 250, 0.04)' }}>
+                  <span className="status-badge__dot" />
                   BI PROJECT
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="grid grid-cols-2 md:flex md:flex-col gap-x-4 gap-y-8 md:gap-y-5">
                 <div className="stat-counter">
                   <div className="stat-counter__value">1,480</div>
                   <div className="stat-counter__label">EMPLOYEES</div>
@@ -222,7 +222,7 @@ export default function HRAnalyticsPage() {
           </div>
 
           {/* Thumbnail grid for the rest */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               { src: '/hr-analytics/Dashboard.png',       label: 'Full Dashboard' },
               { src: '/hr-analytics/DatasetColumns1.png', label: 'Dataset — Part 1' },
@@ -332,14 +332,15 @@ export default function HRAnalyticsPage() {
             End-to-End Workflow
           </h2>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0, overflowX: 'auto', paddingBottom: 8, paddingTop: 20 }}>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-0 lg:overflow-x-auto pb-2 pt-5">
             {pipelineNodes.map((node, i) => (
-              <div key={node.step} style={{ display: 'flex', alignItems: 'center', flex: '1 1 0', minWidth: 160 }}>
+              <div key={node.step} className="flex flex-col lg:flex-row lg:items-center flex-1 min-w-[160px]">
                 {/* Node card */}
                 <div className="glass-panel" style={{
                   flex: 1, padding: '20px 20px 24px',
                   display: 'flex', flexDirection: 'column', gap: 10,
                   position: 'relative',
+                  width: '100%',
                 }}>
                   {/* Step number — positioned at top-right corner as requested */}
                   <span style={{
@@ -379,12 +380,8 @@ export default function HRAnalyticsPage() {
 
                 {/* Arrow — vertically centered because parent is alignItems:center */}
                 {i < pipelineNodes.length - 1 && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    padding: '0 4px', flexShrink: 0,
-                    color: 'var(--accent-cyan)', opacity: 0.6,
-                  }}>
-                    <svg width="32" height="16" viewBox="0 0 32 16" fill="none">
+                  <div className="flex justify-center items-center py-4 lg:py-0 lg:px-3 text-[var(--accent-cyan)] opacity-60">
+                    <svg width="32" height="16" viewBox="0 0 32 16" fill="none" className="rotate-90 lg:rotate-0">
                       <line x1="0" y1="8" x2="23" y2="8" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2" />
                       <polygon points="23,4 32,8 23,12" fill="currentColor" />
                     </svg>

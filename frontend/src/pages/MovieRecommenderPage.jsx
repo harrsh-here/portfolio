@@ -92,9 +92,9 @@ export default function MovieRecommenderPage() {
             <span style={{ color: 'var(--text-secondary)' }}>MOVIE RECOMMENDER</span>
           </nav>
 
-          <div className="hero-split">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center w-full overflow-hidden min-w-0">
             {/* ── Left Column ── */}
-            <div>
+            <div className="mb-10 md:mb-0">
               {/* Tag Pills */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
                 <span className="tag-pill-v2 tag-pill-v2--purple">AI/ML</span>
@@ -200,7 +200,7 @@ export default function MovieRecommenderPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="grid grid-cols-2 md:flex md:flex-col gap-x-4 gap-y-8 md:gap-y-5">
                 <div className="stat-counter">
                   <div className="stat-counter__value">100K</div>
                   <div className="stat-counter__label">RATINGS</div>
@@ -243,7 +243,7 @@ export default function MovieRecommenderPage() {
               fontSize: 13,
               color: 'var(--text-secondary)',
               letterSpacing: '0.04em',
-              marginBottom: 16,
+              marginBottom: window.innerWidth < 768 ? 36 : 16,
             }}
           >
             Search any movie from the ML-100k dataset
@@ -259,7 +259,7 @@ export default function MovieRecommenderPage() {
             transition: 'max-width 0.7s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         >
-          <div className="glass-panel" style={{ padding: '40px 36px' }}>
+          <div className="glass-panel responsive-glass-panel">
             <MovieRecommenderApp onHasResults={setIsExpanded} />
           </div>
         </div>

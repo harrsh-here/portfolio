@@ -197,13 +197,23 @@ export default function MovieRecommenderApp({ onHasResults }) {
     if (!movieTitle) return
     
     if (!isBackendConnected) {
-      setError('The inference server is offline. Please wait for the model to come online and try again.')
-      if (resultsRef.current) {
-        setTimeout(() => {
-          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 100)
+      try {
+        const res = await fetch(`${API_BASE_URL}/health`)
+        if (res.ok) {
+          setIsBackendConnected(true)
+          prevConnectedRef.current = true
+        } else {
+          throw new Error('Offline')
+        }
+      } catch (err) {
+        setError('The inference server is offline. Please wait for the model to come online and try again.')
+        if (resultsRef.current) {
+          setTimeout(() => {
+            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }, 100)
+        }
+        return
       }
-      return
     }
 
     setLoading(true)
@@ -274,7 +284,9 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setCardsVisible(false)
     if (searchInputRef.current) {
       searchInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      setTimeout(() => searchInputRef.current?.focus(), 500)
+      if (window.innerWidth > 768) {
+        setTimeout(() => searchInputRef.current?.focus(), 500)
+      }
     }
   }
 
@@ -297,7 +309,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
   )
 
   return (
-    <div className="flex flex-col gap-12 w-full relative" style={{ padding: '32px 32px' }}>
+    <div className="flex flex-col gap-10 md:gap-12 w-full relative responsive-app-wrapper">
       
       {/* ━━━ HUD Overlay ━━━ */}
       {showStatusOverlay && createPortal(
@@ -357,27 +369,27 @@ export default function MovieRecommenderApp({ onHasResults }) {
               value={query}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && handleGetRecommendations()}
-              className="flex-grow bg-transparent text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] text-base"
-              style={{ fontFamily: 'var(--font-sans)', padding: '18px 8px 18px 14px' }}
+              className="search-input-responsive flex-grow min-w-0 bg-transparent text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)] text-sm sm:text-base"
+              style={{ fontFamily: 'var(--font-sans)' }}
             />
 
-            <div className="shrink-0 h-[58px]">
+            <div className="shrink-0 h-[58px] movie-run-btn-wrapper">
               <button
                 id="movie-rec-search-btn"
                 onClick={() => handleGetRecommendations()}
                 disabled={loading || !query}
-                className={`w-full h-full flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-[var(--bg-primary)] enabled:hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.4),_0_0_25px_var(--accent-cyan)] enabled:hover:brightness-125 z-10 relative`}
+                className={`w-full h-full flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-[var(--bg-primary)] enabled:hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.4),_0_0_25px_var(--accent-cyan)] enabled:hover:brightness-125 z-10 relative movie-run-btn`}
                 style={{ 
                   fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', 
                   padding: '0 32px', borderRadius: '0 12px 12px 0',
                   background: isBackendConnected ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                  borderLeft: '1px solid rgba(255,255,255,0.15)',
+                  borderLeft: '1px solid var(--border)',
                   opacity: !isBackendConnected ? 0.5 : 1,
-                  cursor: !isBackendConnected ? 'pointer' : 'default',
+                  boxShadow: isBackendConnected ? '0 0 20px rgba(6, 182, 212, 0.2)' : 'none'
                 }}
               >
-                <Zap size={14} />
-                Run
+                <Zap size={14} className="shrink-0" />
+                <span className="movie-run-btn-text">Run</span>
               </button>
             </div>
 
@@ -399,7 +411,6 @@ export default function MovieRecommenderApp({ onHasResults }) {
           </div>
         </div>
 
-        {/* Quick Picks */}
         <div className="flex items-center gap-3 overflow-x-auto py-1 no-scrollbar">
           <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-widest shrink-0"
             style={{ fontFamily: 'var(--font-mono)' }}>Quick Picks:</span>

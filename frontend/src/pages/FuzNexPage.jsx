@@ -162,10 +162,10 @@ export default function FuzNexPage() {
           </nav>
 
           {/* Two-column hero */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start md:items-center w-full overflow-hidden min-w-0">
 
             {/* Left */}
-            <div>
+            <div className="mb-10 md:mb-0">
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 20 }}>
                 01 // Project
               </div>
@@ -195,14 +195,14 @@ export default function FuzNexPage() {
               </p>
 
               {/* CTA Buttons */}
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+              <div className="flex flex-col sm:flex-row gap-4 mb-8 w-full">
                 <a
                   id="cta-live-demo"
                   href="https://fuznex-wrist.netlify.app/"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent-cyan) 12%, transparent), color-mix(in srgb, var(--accent-blue) 10%, transparent))',
                     border: '1px solid var(--border-accent)',
                     borderRadius: 10, color: 'var(--accent-cyan)',
@@ -221,7 +221,7 @@ export default function FuzNexPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent-cyan) 12%, transparent), color-mix(in srgb, var(--accent-blue) 10%, transparent))',
                     border: '1px solid var(--border-accent)',
                     borderRadius: 10, color: 'var(--accent-cyan)',
@@ -242,6 +242,7 @@ export default function FuzNexPage() {
                 padding: '12px 16px', borderRadius: 8,
                 background: 'rgba(251, 191, 36, 0.06)',
                 border: '1px solid rgba(251, 191, 36, 0.2)',
+                marginTop: 30,
               }}>
                 <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>⚠️</span>
                 <p style={{
@@ -254,15 +255,15 @@ export default function FuzNexPage() {
             </div>
 
             {/* Right — Stats */}
-            <div style={{ position: 'relative' }}>
+            <div style={{ position: 'relative' }} className="w-full min-w-0">
               <div className="chapter-marker">04</div>
               <div style={{ marginBottom: 32 }}>
-                <div className="status-badge">
-                  <span className="status-badge__dot" style={{ background: '#fbbf24' }} />
+                <div className="status-badge" style={{ color: '#fbbf24', border: '1px solid rgba(251, 191, 36, 0.15)', background: 'rgba(251, 191, 36, 0.04)' }}>
+                  <span className="status-badge__dot" />
                   IN PROGRESS
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="grid grid-cols-2 sm:flex sm:flex-col gap-x-4 gap-y-8 sm:gap-y-5">
                 <div className="stat-counter">
                   <div className="stat-counter__value">2</div>
                   <div className="stat-counter__label">CLIENT PROTOTYPES</div>
@@ -386,13 +387,13 @@ export default function FuzNexPage() {
                 style={{
                   padding: '24px 20px', position: 'relative',
                   display: 'flex', flexDirection: 'column', gap: 10,
-                  boxShadow: member.isLead ? '0 0 0 1px var(--accent-cyan), 0 0 20px rgba(0, 245, 255, 0.15)' : undefined,
+                  boxShadow: member.isLead ? '0 0 0 1px #a78bfa, 0 0 20px rgba(167, 139, 250, 0.15)' : undefined,
                 }}
               >
                 {member.isLead && (
                   <div style={{
                     position: 'absolute', top: 16, right: 16,
-                    background: 'var(--accent-cyan)', color: '#000',
+                    background: '#a78bfa', color: '#000',
                     padding: '3px 10px', borderRadius: 20,
                     fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 900,
                     letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: 4,
@@ -405,14 +406,14 @@ export default function FuzNexPage() {
                 <div style={{
                   width: 44, height: 44, borderRadius: '50%',
                   background: member.isLead
-                    ? 'color-mix(in srgb, var(--accent-cyan) 18%, transparent)'
+                    ? 'rgba(167, 139, 250, 0.18)'
                     : 'rgba(255,255,255,0.04)',
                   border: member.isLead
-                    ? '1px solid var(--border-accent)'
+                    ? '1px solid #a78bfa'
                     : '1px solid rgba(255,255,255,0.08)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'var(--font-mono)', fontSize: 16, fontWeight: 800,
-                  color: member.isLead ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                  color: member.isLead ? '#c4b5fd' : 'var(--text-muted)',
                 }}>
                   {member.name.split(' ').map(n => n[0]).join('')}
                 </div>
@@ -421,7 +422,7 @@ export default function FuzNexPage() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
                     {member.name}
                   </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: member.isLead ? 'var(--accent-cyan)' : 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, color: member.isLead ? '#a78bfa' : 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 10 }}>
                     {member.role}
                   </div>
                   <div style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6 }}>

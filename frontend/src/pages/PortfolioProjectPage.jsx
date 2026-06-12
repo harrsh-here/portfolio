@@ -88,9 +88,9 @@ export default function PortfolioProjectPage() {
             <span style={{ color: 'var(--text-secondary)' }}>PORTFOLIO OS</span>
           </nav>
 
-          <div className="hero-split">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center w-full overflow-hidden min-w-0">
             {/* ── Left Column ── */}
-            <div>
+            <div className="mb-10 md:mb-0">
               {/* Tag Pills */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
                 <span className="tag-pill-v2 tag-pill-v2--blue">WEB</span>
@@ -193,7 +193,7 @@ export default function PortfolioProjectPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div className="grid grid-cols-2 md:flex md:flex-col gap-x-4 gap-y-8 md:gap-y-5">
                 <div className="stat-counter">
                   <div className="stat-counter__value">60fps</div>
                   <div className="stat-counter__label">CANVAS ENGINE</div>
@@ -269,7 +269,7 @@ export default function PortfolioProjectPage() {
         <div className="gradient-divider" style={{ position: 'absolute', top: 0 }} />
 
         <div className="section-container">
-          <div className="hero-split">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center w-full overflow-hidden min-w-0">
             <div>
               <div
                 style={{

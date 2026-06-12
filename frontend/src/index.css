@@ -90,17 +90,20 @@ button:not(.glow-inner),
 a.contact-btn:not(.glow-inner),
 a#cta-live-demo:not(.glow-inner),
 a#cta-source,
+a#cta-you-are-here,
 a#hero-cta-view-projects,
 a.btn:not(.glow-inner),
 .icon-link,
 [role="button"]:not(.glow-inner) {
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:not(.glow-inner):hover,
 a.contact-btn:not(.glow-inner):hover,
 a#cta-live-demo:not(.glow-inner):hover,
 a#cta-source:hover,
+a#cta-you-are-here:hover,
 a#hero-cta-view-projects:hover,
 a.btn:not(.glow-inner):hover,
 .icon-link:hover,
@@ -113,11 +116,28 @@ a.contact-btn:active,
 a.glow-inner:active,
 a#cta-live-demo:active,
 a#cta-source:active,
+a#cta-you-are-here:active,
 a#hero-cta-view-projects:active,
 a.btn:active,
 .icon-link:active,
 [role="button"]:active {
   transform: scale(0.96) !important;
+}
+
+@media (max-width: 768px) {
+  button:active,
+  a.contact-btn:active,
+  a.glow-inner:active,
+  a#cta-live-demo:active,
+  a#cta-source:active,
+  a#cta-you-are-here:active,
+  a#hero-cta-view-projects:active,
+  a.btn:active,
+  .icon-link:active,
+  [role="button"]:active {
+    transform: scale(0.94) !important;
+    transition-duration: 0.05s !important;
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -713,20 +733,6 @@ input[type=range]::-moz-range-thumb {
   );
 }
 
-/* --- Split Hero Layout --- */
-.hero-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
-}
-@media (max-width: 900px) {
-  .hero-split {
-    grid-template-columns: 1fr;
-    gap: 40px;
-    min-height: auto;
-  }
-}
 
 /* --- Glassmorphic Panel --- */
 .glass-panel {
@@ -1190,3 +1196,180 @@ input[type=range]::-moz-range-thumb {
   font-weight: 600;
 }
 
+/* ═══════════════════════════════════════
+   RESPONSIVE PADDING FIXES
+   ═══════════════════════════════════════ */
+.responsive-glass-panel {
+  padding: 40px 36px;
+}
+.responsive-app-wrapper {
+  padding: 32px;
+}
+
+/* ═══════════════════════════════════════
+   MOBILE STRICT OVERRIDES (max-width: 768px)
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .responsive-glass-panel {
+    padding: 36px 16px !important;
+  }
+  .responsive-app-wrapper {
+    padding: 24px 0 0 0 !important;
+  }
+  
+  .movie-run-btn-wrapper {
+    width: 60px !important;
+  }
+  .movie-run-btn {
+    padding: 0 !important;
+  }
+  .movie-run-btn-text {
+    display: none !important;
+  }
+  
+  /* Fix massively huge headers causing horizontal scroll */
+  .section-title {
+    font-size: clamp(24px, 8vw, 32px) !important;
+  }
+  
+  /* Scale down the Glitch HUD so it fits on phone screens */
+  .hud-container {
+    width: 90% !important;
+    max-width: 320px !important;
+    padding: 16px !important;
+  }
+  
+  /* Fix overlapping card typography and labels */
+  .rec-card {
+    height: auto !important; /* Allow card to grow if needed */
+    min-height: 400px;
+  }
+  .rec-card__title {
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 8px !important;
+  }
+  .rec-card__tags {
+    gap: 4px !important;
+    margin-bottom: 12px !important;
+  }
+  .rec-card__tag {
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+  }
+  
+  /* Reduce excessive paddings on various containers */
+  .glow-border > a,
+  .glow-border > .glow-inner,
+  .glow-border > button {
+    padding: 10px 16px !important;
+  }
+  
+  /* Enforce single column grid on mobile to stop cards from squeezing and overlapping */
+  .rec-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  
+  /* Adjust the 3D perspective to prevent touch-interaction issues */
+  .rec-card {
+    transform: none !important;
+  }
+  .rec-card:hover {
+    transform: translateY(-2px) !important;
+  }
+}
+
+ / *   Q u i c k   P i c k s   R e s p o n s i v e   S t y l i n g   * / 
+ . q u i c k - p i c k - b t n   { 
+     b o r d e r - r a d i u s :   9 9 9 9 p x ; 
+     b a c k g r o u n d - c o l o r :   r g b a ( 2 5 5 ,   2 5 5 ,   2 5 5 ,   0 . 0 2 ) ; 
+     b o r d e r :   1 p x   s o l i d   r g b a ( 2 5 5 ,   2 5 5 ,   2 5 5 ,   0 . 0 5 ) ; 
+     c o l o r :   # 6 b 7 2 8 0 ; 
+     f o n t - s i z e :   1 1 p x ; 
+     p a d d i n g :   1 0 p x   2 4 p x ; 
+     f o n t - f a m i l y :   v a r ( - - f o n t - m o n o ) ; 
+     f o n t - w e i g h t :   7 0 0 ; 
+     l e t t e r - s p a c i n g :   0 . 1 e m ; 
+     t e x t - t r a n s f o r m :   u p p e r c a s e ; 
+     t r a n s i t i o n :   a l l   0 . 2 s ; 
+     w h i t e - s p a c e :   n o w r a p ; 
+ } 
+ . q u i c k - p i c k - b t n : h o v e r   { 
+     b o r d e r - c o l o r :   r g b a ( 6 ,   1 8 2 ,   2 1 2 ,   0 . 4 ) ; 
+     c o l o r :   v a r ( - - a c c e n t - c y a n ) ; 
+     b a c k g r o u n d - c o l o r :   r g b a ( 6 ,   1 8 2 ,   2 1 2 ,   0 . 0 5 ) ; 
+ } 
+ . q u i c k - p i c k - b t n : a c t i v e   { 
+     t r a n s f o r m :   s c a l e ( 0 . 9 5 ) ; 
+ } 
+ 
+ @ m e d i a   ( m i n - w i d t h :   7 6 8 p x )   { 
+     . q u i c k - p i c k - b t n   { 
+         b o r d e r - r a d i u s :   0 ; 
+         b a c k g r o u n d - c o l o r :   t r a n s p a r e n t ; 
+         b o r d e r :   n o n e ; 
+         c o l o r :   v a r ( - - t e x t - s e c o n d a r y ) ; 
+         f o n t - s i z e :   1 0 p x ; 
+         p a d d i n g :   0 ; 
+         f o n t - w e i g h t :   4 0 0 ; 
+         l e t t e r - s p a c i n g :   0 . 0 5 e m ; 
+     } 
+     . q u i c k - p i c k - b t n : h o v e r   { 
+         c o l o r :   v a r ( - - a c c e n t - c y a n ) ; 
+         b a c k g r o u n d - c o l o r :   t r a n s p a r e n t ; 
+         b o r d e r :   n o n e ; 
+     } 
+     . q u i c k - p i c k - b t n : a c t i v e   { 
+         t r a n s f o r m :   n o n e ; 
+     } 
+ } 
+ 
+ . s e a r c h - i n p u t - r e s p o n s i v e   { 
+     p a d d i n g :   1 6 p x   1 2 p x ; 
+ } 
+ @ m e d i a   ( m i n - w i d t h :   7 6 8 p x )   { 
+     . s e a r c h - i n p u t - r e s p o n s i v e   { 
+         p a d d i n g :   1 8 p x   8 p x   1 8 p x   1 4 p x ; 
+     } 
+ } 
+  
+ 
+.run-btn-wrapper {
+  width: 60px;
+}
+.run-btn-responsive {
+  padding: 0;
+}
+.run-btn-text {
+  display: none;
+}
+@media (min-width: 768px) {
+  .run-btn-wrapper {
+    width: auto;
+  }
+  .run-btn-responsive {
+    padding: 0 32px !important;
+  }
+  .run-btn-text {
+    display: inline;
+  }
+}
+
+/* Projects Mobile Filter Grid Overrides */
+@media (max-width: 768px) {
+  .project-filter-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 16px 8px !important;
+    width: 100% !important;
+    max-width: 360px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .project-filter-btn {
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+    width: 100% !important;
+  }
+}

@@ -46,8 +46,8 @@ export default function ProjectsPage() {
         </div>
 
         {/* Centered Filter bar */}
-        <div className="flex justify-center mb-10 w-full overflow-x-auto no-scrollbar">
-          <div className="rounded-xl p-3 md:p-5"
+        <div className="flex justify-center mb-10 w-full overflow-x-auto no-scrollbar px-4 md:px-0">
+          <div className="rounded-xl p-4 md:p-5 px-4 md:px-[80px] project-filter-box"
             style={{
               display: 'inline-flex',
               backgroundColor: 'rgba(255,255,255,0.03)',
@@ -57,10 +57,39 @@ export default function ProjectsPage() {
               opacity: visible ? 1 : 0,
               transition: 'opacity 500ms ease 200ms',
             }}>
-            <div className="flex flex-nowrap md:flex-wrap justify-center gap-3 md:gap-8 min-w-max">
+            <style>
+              {`
+                @media (max-width: 768px) {
+                  .project-filter-box {
+                    width: 100% !important;
+                    display: block !important;
+                    padding: 16px !important;
+                  }
+                  .project-filter-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                    gap: 20px 16px !important;
+                    width: 100% !important;
+                  }
+                  .project-filter-btn {
+                    padding: 8px 4px !important;
+                    font-size: 13px !important;
+                    line-height: 1.2 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    min-width: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    text-align: center !important;
+                  }
+                }
+              `}
+            </style>
+            <div className="flex flex-wrap justify-center gap-3 md:gap-8 project-filter-grid">
               {allTags.map((tag) => (
                 <button key={tag} onClick={() => handleTagChange(tag)}
-                  className="rounded-3xl text-sm font-medium transition-all duration-200"
+                  className="rounded-3xl text-sm font-medium transition-all duration-200 project-filter-btn"
                   style={{
                     fontFamily: 'var(--font-sans)',
                     padding: '12px 25px',

@@ -112,7 +112,7 @@ export default function EducationTimeline() {
               }}>
               <div className="timeline-dot absolute rounded-full"
                 style={{
-                  left: '-27px', top: '4px',
+                  left: '-28px', top: '4px',
                   width: '14px', height: '14px',
                   background: '#222',
                   border: '2px solid #333',
@@ -120,8 +120,8 @@ export default function EducationTimeline() {
                   transition: 'all 0.4s ease',
                 }} />
 
-              <div>
-                <div className="flex flex-wrap items-center gap-3 mb-2">
+              <div className="pr-6 md:pr-0">
+                <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-3 mb-2">
                   <h3 className="text-base md:text-lg font-semibold"
                     style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
                     {entry.title}
@@ -145,7 +145,7 @@ export default function EducationTimeline() {
                     )
                   })}
                 </div>
-                <p className="text-sm mb-3"
+                <p className="text-sm mb-4 md:mb-3"
                   style={{ fontFamily: 'var(--font-sans)', color: 'var(--text-muted)' }}>
                   {entry.date}{entry.location ? ` · ${entry.location}` : ''}
                 </p>
