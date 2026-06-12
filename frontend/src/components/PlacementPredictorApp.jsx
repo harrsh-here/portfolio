@@ -305,14 +305,14 @@ export default function PlacementPredictorApp() {
 
           {/* Run Button */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className="glow-border" style={{ borderRadius: 12 }}>
               <button
                 id="btn-predict"
                 onClick={handlePredict}
                 disabled={!isBackendConnected}
                 style={{
-                  border: '1px solid var(--border-accent)',
-                  borderRadius: 11,
+                  backgroundColor: 'var(--bg-card)',
+                  border: '1.5px solid var(--border-accent)',
+                  borderRadius: 12,
                   color: 'var(--accent-cyan)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: 15,
@@ -325,17 +325,21 @@ export default function PlacementPredictorApp() {
                   transition: 'all 0.3s ease',
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.boxShadow = '0 0 16px var(--accent-glow)';
+                  e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+                  e.currentTarget.style.color = 'var(--accent-cyan)';
+                  e.currentTarget.style.border = '1.5px solid var(--accent-cyan)';
+                  e.currentTarget.style.boxShadow = '0 0 18px var(--accent-glow), inset 0 0 10px var(--accent-glow)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.backgroundColor = 'var(--bg-card)';
+                  e.currentTarget.style.color = 'var(--accent-cyan)';
+                  e.currentTarget.style.border = '1.5px solid var(--border-accent)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 Run Prediction
               </button>
-            </div>
+
           </div>
         </div>
       )}

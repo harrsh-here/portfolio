@@ -12,10 +12,7 @@ app = FastAPI(title="Unified Portfolio Backend", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://harrsh-here.netlify.app",
-        "http://localhost:5173"  # Kept for local frontend testing
-    ],
+    allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],

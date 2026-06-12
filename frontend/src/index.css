@@ -373,16 +373,10 @@ section {
   border-radius: 10px;
   padding: 1.5px;
   display: inline-flex;
+  background: transparent;
+  transition: background 0.25s ease;
 }
-/* Exception: SPP prediction button parent */
-.glow-border:has(> #btn-predict) {
-  padding: 0;
-}
-.glow-border::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
+.glow-border:hover {
   background: conic-gradient(
     from var(--angle),
     transparent 70%,
@@ -391,23 +385,9 @@ section {
     var(--accent-cyan) 95%,
     transparent 100%
   );
-  opacity: 0;
-  transition: opacity 0.25s ease;
-  z-index: 0;
-  pointer-events: none;
-}
-/* Exception: SPP prediction button inset fallback */
-.glow-border:has(> #btn-predict)::after {
-  inset: -1px 1px;
-  border-radius: 12px;
-}
-.glow-border:hover::after {
-  opacity: 1;
   animation: spin-border 2s linear infinite;
 }
 .glow-border > * {
-  position: relative;
-  z-index: 1;
   border-radius: 9px;
 }
 .glow-border > a,
