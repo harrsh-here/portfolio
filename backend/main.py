@@ -12,7 +12,10 @@ app = FastAPI(title="Unified Portfolio Backend", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://harrsh-here.netlify.app",
+        "http://localhost:5173"  # Kept for local frontend testing
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,15 +24,18 @@ app.add_middleware(
 app.include_router(movie_router)
 app.include_router(placement_router)
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "services": ["Movie Recommender", "Placement Predictor"]}
 
 @app.get("/")
 async def serve_frontend():
-    return FileResponse(str(BASE_DIR / "movie_recommender" / "static" / "index.html"))
+    return FileResponse(str(BASE_DIR / "static" / "index.html"))
 
-app.mount("/static", StaticFiles(directory=str(BASE_DIR / "movie_recommender" / "static")), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 if __name__ == "__main__":
     import uvicorn
