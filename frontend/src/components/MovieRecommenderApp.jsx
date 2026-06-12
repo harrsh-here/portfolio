@@ -127,7 +127,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
     const pollHealth = async () => {
       try {
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const timeoutId = setTimeout(() => controller.abort(), 8000)
         const res = await fetch(`${API_BASE_URL}/health`, { signal: controller.signal })
         clearTimeout(timeoutId)
         if (res.ok) {
@@ -148,7 +148,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
         prevConnectedRef.current = false
       } finally {
         if (isSubscribed) {
-          timerId = setTimeout(pollHealth, 1500)
+          timerId = setTimeout(pollHealth, 15000)
         }
       }
     }
@@ -500,7 +500,8 @@ export default function MovieRecommenderApp({ onHasResults }) {
                     style={{
                       opacity: cardsVisible ? 1 : 0,
                       transform: cardsVisible ? 'translateY(0)' : 'translateY(12px)',
-                      transition: `opacity 0.4s ease ${idx * 0.06}s, transform 0.4s ease ${idx * 0.06}s`
+                      transition: `opacity 0.4s ease ${idx * 0.06}s, transform 0.4s ease ${idx * 0.06}s`,
+                      zIndex: isExpanded ? 40 : 1,
                     }}
                   >
                     {/* Poster */}

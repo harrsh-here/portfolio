@@ -17,7 +17,7 @@ export default function PlacementPredictorApp() {
     const checkHealth = async () => {
       try {
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const timeoutId = setTimeout(() => controller.abort(), 8000)
         const res = await fetch(`${API_URL}/health`, { signal: controller.signal })
         clearTimeout(timeoutId)
         if (res.ok) setIsBackendConnected(true)
@@ -27,7 +27,7 @@ export default function PlacementPredictorApp() {
       }
     }
     checkHealth()
-    const intervalId = setInterval(checkHealth, 5000)
+    const intervalId = setInterval(checkHealth, 15000)
     return () => clearInterval(intervalId)
   }, []);
 
