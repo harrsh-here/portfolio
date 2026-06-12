@@ -359,13 +359,15 @@ export default function MovieRecommenderApp({ onHasResults }) {
               <button
                 id="movie-rec-search-btn"
                 onClick={() => handleGetRecommendations()}
-                disabled={loading || !query || !isBackendConnected}
-                className="w-full h-full flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-[var(--bg-primary)] enabled:hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.4),_0_0_25px_var(--accent-cyan)] enabled:hover:brightness-125 z-10 relative"
+                disabled={loading || !query}
+                className={`w-full h-full flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-[var(--bg-primary)] enabled:hover:shadow-[inset_0_0_20px_rgba(255,255,255,0.4),_0_0_25px_var(--accent-cyan)] enabled:hover:brightness-125 z-10 relative`}
                 style={{ 
                   fontFamily: 'var(--font-mono)', fontSize: '10px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', 
                   padding: '0 32px', borderRadius: '0 12px 12px 0',
                   background: isBackendConnected ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                  borderLeft: '1px solid rgba(255,255,255,0.15)'
+                  borderLeft: '1px solid rgba(255,255,255,0.15)',
+                  opacity: !isBackendConnected ? 0.5 : 1,
+                  cursor: !isBackendConnected ? 'pointer' : 'default',
                 }}
               >
                 <Zap size={14} />

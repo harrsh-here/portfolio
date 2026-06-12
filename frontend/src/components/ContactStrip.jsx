@@ -92,7 +92,7 @@ export default function ContactStrip() {
           background: conic-gradient(
             from var(--angle, 0deg),
             transparent 60%,
-            #00ffff 80%,
+            var(--accent-cyan) 80%,
             transparent 100%
           );
           -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -109,7 +109,7 @@ export default function ContactStrip() {
         }
 
         .contact-btn-wrapper:hover {
-          box-shadow: 0 0 10px rgba(0, 255, 255, 0.08);
+          box-shadow: 0 0 10px var(--accent-glow);
         }
 
         .contact-btn {
@@ -126,14 +126,14 @@ export default function ContactStrip() {
           text-decoration: none;
           background: transparent;
           color: var(--accent-cyan);
-          border: 1px solid rgba(0, 255, 255, 0.3);
+          border: 1px solid var(--border-accent);
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
           white-space: nowrap;
           box-sizing: border-box;
         }
 
         .contact-btn:hover {
-          border-color: rgba(0, 255, 255, 0.0);
+          border-color: transparent;
           box-shadow: none;
         }
 

@@ -61,6 +61,10 @@ export default function PlacementPredictorApp() {
   }, [phase, result]);
 
   async function handlePredict() {
+    if (!isBackendConnected) {
+      setError('System Offline: Backend server is unreachable.');
+      return;
+    }
     setError(null);
     setPhase('loading');
     try {
@@ -305,14 +309,14 @@ export default function PlacementPredictorApp() {
 
           {/* Run Button */}
           <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className="glow-border" style={{ borderRadius: 12, opacity: isBackendConnected ? 1 : 0.5 }}>
               <button
                 id="btn-predict"
                 onClick={handlePredict}
-                disabled={!isBackendConnected}
                 style={{
                   backgroundColor: 'var(--bg-card)',
-                  border: '1.5px solid var(--border-accent)',
-                  borderRadius: 12,
+                  border: '1px solid var(--border-accent)',
+                  borderRadius: 10,
                   color: 'var(--accent-cyan)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: 15,
@@ -320,26 +324,24 @@ export default function PlacementPredictorApp() {
                   letterSpacing: '0.08em',
                   padding: '16px 48px',
                   cursor: isBackendConnected ? 'pointer' : 'not-allowed',
-                  opacity: isBackendConnected ? 1 : 0.5,
                   textTransform: 'uppercase',
                   transition: 'all 0.3s ease',
+                  width: '100%',
                 }}
                 onMouseEnter={e => {
                   e.currentTarget.style.backgroundColor = 'var(--bg-card)';
                   e.currentTarget.style.color = 'var(--accent-cyan)';
-                  e.currentTarget.style.border = '1.5px solid var(--accent-cyan)';
-                  e.currentTarget.style.boxShadow = '0 0 18px var(--accent-glow), inset 0 0 10px var(--accent-glow)';
+                  e.currentTarget.style.border = '1px solid var(--border)';
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.backgroundColor = 'var(--bg-card)';
                   e.currentTarget.style.color = 'var(--accent-cyan)';
-                  e.currentTarget.style.border = '1.5px solid var(--border-accent)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.border = '1px solid var(--border-accent)';
                 }}
               >
                 Run Prediction
               </button>
-
+            </div>
           </div>
         </div>
       )}

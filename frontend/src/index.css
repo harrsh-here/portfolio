@@ -374,7 +374,19 @@ section {
   padding: 1.5px;
   display: inline-flex;
   background: transparent;
-  transition: background 0.25s ease;
+  transition: background 0.25s ease, transform 0.1s ease;
+}
+.glow-border:active,
+.glow-border:has(> *:active) {
+  transform: scale(0.96) !important;
+}
+.glow-border:hover,
+.glow-border:has(> *:hover) {
+  transform: scale(0.97);
+}
+.glow-border > *:hover,
+.glow-border > *:active {
+  transform: none !important;
 }
 .glow-border:hover {
   background: conic-gradient(
