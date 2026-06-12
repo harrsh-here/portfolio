@@ -9,6 +9,8 @@ const achievements = [
   { num: '05', title: 'Google Cloud Skill Badge', desc: 'Compute foundations badge issued by Google — October 2025.', tag: 'Cloud' },
   { num: '06', title: 'NPTEL — DBMS (Elite)', desc: 'Elite grade in 8-week DBMS course from IIT Kharagpur via NPTEL.', tag: 'Databases' },
   { num: '07', title: 'Google Student Ambassador', desc: 'Completed the Google Student Ambassador program — February 2026.', tag: 'Leadership' },
+  { num: '08', title: 'NPTEL — Joy of Computing using Python', desc: 'Elite Certification from IIT Madras with an overall score of 93%.', tag: 'Python' },
+  { num: '09', title: 'NPTEL — Problem Solving in C', desc: 'Completed the Problem Solving Through Programming in C course from IIT Kharagpur.', tag: 'C' },
 ]
 
 export default function AchievementsSection() {

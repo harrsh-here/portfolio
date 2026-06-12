@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { projects } from '../data/projects'
 import ProjectCard from '../components/ProjectCard'
 
-const allTags = ['All', 'AI/ML', 'Web', 'Python', 'In Progress']
+const allTags = ['All', 'AI/ML', 'Data Analytics', 'Web', 'Python', 'In Progress']
 
 export default function ProjectsPage() {
   const [activeTag, setActiveTag] = useState('All')

@@ -8,6 +8,8 @@ import ProjectsPage from './pages/ProjectsPage'
 import SPPProjectPage from './pages/SPPProjectPage'
 import MovieRecommenderPage from './pages/MovieRecommenderPage'
 import PortfolioProjectPage from './pages/PortfolioProjectPage'
+import HRAnalyticsPage from './pages/HRAnalyticsPage'
+import FuzNexPage from './pages/FuzNexPage'
 import DynamicBackground from './components/DynamicBackground'
 
 function CursorGlow() {
@@ -41,6 +43,8 @@ export default function App() {
             <Route path="/projects/student-placement-predictor" element={<SPPProjectPage />} />
             <Route path="/projects/movie-recommender" element={<MovieRecommenderPage />} />
             <Route path="/projects/portfolio" element={<PortfolioProjectPage />} />
+            <Route path="/projects/hr-analytics" element={<HRAnalyticsPage />} />
+            <Route path="/projects/fuznex" element={<FuzNexPage />} />
           </Routes>
         </main>
         <Footer />

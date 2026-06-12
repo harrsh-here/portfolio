@@ -55,7 +55,8 @@ export default function Footer() {
               onMouseLeave={(e) => {
                 e.currentTarget.style.color = 'var(--text-secondary)'
               }}
-              aria-label={label}>
+              aria-label={label}
+              title={label}>
               <Icon size={18} />
             </a>
           ))}

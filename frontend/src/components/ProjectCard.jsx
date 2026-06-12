@@ -2,7 +2,18 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, ExternalLink } from 'lucide-react'
 
 export default function ProjectCard({ project, featured = false, style = {} }) {
-  const statusColor = project.status === 'Live' ? '#28c840' : '#febc2e'
+  const statusColor =
+    project.status === 'Live' ? '#28c840' :
+    project.status === 'In Progress' ? '#fbbf24' : '#febc2e'
+
+  const badgeColors = {
+    'FEATURED':  { bg: 'var(--accent-glow)',            color: 'var(--accent-cyan)',  border: 'var(--border-accent)' },
+    'FIRST ML':  { bg: 'rgba(251,191,36,0.08)',          color: '#fbbf24',             border: 'rgba(251,191,36,0.3)' },
+    'FIRST BI':  { bg: 'rgba(167,139,250,0.08)',         color: '#a78bfa',             border: 'rgba(167,139,250,0.3)' },
+    'STEALTH':   { bg: 'rgba(167,139,250,0.10)',         color: '#c4b5fd',             border: 'rgba(167,139,250,0.35)' },
+  }
+  const badge = project.badge || 'FEATURED'
+  const badgeStyle = badgeColors[badge] || badgeColors['FEATURED']
 
   return (
     <div className="relative h-full w-full card-accent"
@@ -10,13 +21,14 @@ export default function ProjectCard({ project, featured = false, style = {} }) {
       {featured && (
         <span className="absolute top-5 right-5 text-xs rounded-full font-medium"
           style={{
-            backgroundColor: 'var(--accent-glow)',
-            color: 'var(--accent-cyan)',
-            fontFamily: 'var(--font-sans)',
-            padding: '6px 18px',
-            border: '1px solid var(--border-accent)',
+            backgroundColor: badgeStyle.bg,
+            color: badgeStyle.color,
+            fontFamily: 'var(--font-mono)',
+            fontSize: 10, letterSpacing: '0.08em',
+            padding: '5px 14px',
+            border: `1px solid ${badgeStyle.border}`,
           }}>
-          FEATURED
+          {badge}
         </span>
       )}
 
