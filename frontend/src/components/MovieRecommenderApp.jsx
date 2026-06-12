@@ -75,7 +75,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
   const [error, setError] = useState(null)
   const [allMovies, setAllMovies] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [expandedCard, setExpandedCard] = useState(null)
+  const [expandedCards, setExpandedCards] = useState({})
   const [extraData, setExtraData] = useState({})
   const [cardsVisible, setCardsVisible] = useState(false)
   const [isBackendConnected, setIsBackendConnected] = useState(false)
@@ -169,6 +169,10 @@ export default function MovieRecommenderApp({ onHasResults }) {
       if (suggestionRef.current && !suggestionRef.current.contains(event.target)) {
         setShowSuggestions(false)
       }
+      // If clicked outside of any movie card, collapse all plots
+      if (!event.target.closest('.rec-card')) {
+        setExpandedCards({})
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -207,7 +211,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setShowSuggestions(false)
     setRecommendations([])
     setCardsVisible(false)
-    setExpandedCard(null)
+    setExpandedCards({})
     setExtraData({})
 
     // Apply fuzzy matching autocorrection
@@ -264,7 +268,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setQuery('')
     setRecommendations([])
     setError(null)
-    setExpandedCard(null)
+    setExpandedCards({})
     setExtraData({})
     setOriginalQuery(null)
     setCardsVisible(false)
@@ -493,7 +497,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
             <div className="rec-grid">
               {recommendations.map((movie, idx) => {
                 const details = extraData[movie.id]
-                const isExpanded = expandedCard === idx
+                const isExpanded = !!expandedCards[idx]
 
                 return (
                   <div
@@ -542,7 +546,7 @@ export default function MovieRecommenderApp({ onHasResults }) {
                         {details ? (
                           <button
                             className="rec-card__plot-btn"
-                            onClick={() => setExpandedCard(isExpanded ? null : idx)}
+                            onClick={() => setExpandedCards(prev => ({ ...prev, [idx]: !prev[idx] }))}
                           >
                             {isExpanded ? '▲ plot' : '▼ plot'}
                           </button>
