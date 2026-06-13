@@ -184,7 +184,7 @@ export default function HeroSection() {
             </button>
           </div>
 
-          <div className={`hidden lg:block transition-all duration-700 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+          <div className={`mt-8 lg:mt-0 transition-all duration-700 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
             <Terminal />
           </div>
         </div>
