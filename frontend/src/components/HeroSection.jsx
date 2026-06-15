@@ -116,8 +116,8 @@ export default function HeroSection() {
               {socialButtons.map(({ icon: Icon, href, label }) => (
                 <div key={label} className="relative group">
                   <a href={href}
-                    target={href.startsWith('http') || href.startsWith('mailto') ? '_blank' : undefined}
-                    rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200 icon-link"
                     style={{ border: '1px solid rgba(255,255,255,0.12)', color: 'var(--text-secondary)' }}
                     onMouseEnter={(e) => {

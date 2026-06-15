@@ -191,7 +191,7 @@ export default function ContactStrip() {
           </div>
 
           <div className="glow-border">
-            <a href="/resume.pdf" download className="glow-inner"
+            <a href="/resume.pdf" download target="_blank" rel="noopener noreferrer" className="glow-inner"
               style={{
                 color: 'var(--bg-primary)',
                 background: 'var(--accent-cyan)',

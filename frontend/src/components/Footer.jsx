@@ -45,8 +45,8 @@ export default function Footer() {
         <div className="flex items-center gap-5">
           {socialLinks.map(({ icon: Icon, href, label, external }) => (
             <a key={label} href={href}
-              target={external || href.startsWith('http') ? '_blank' : undefined}
-              rel={external || href.startsWith('http') ? 'noopener noreferrer' : undefined}
+              target="_blank"
+              rel="noopener noreferrer"
               className="transition-all duration-200 icon-link"
               style={{ color: 'var(--text-secondary)' }}
               onMouseEnter={(e) => {
