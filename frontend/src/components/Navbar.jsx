@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, ChevronDown } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import MatrixText from './MatrixText'
+import LiveClock from './LiveClock'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -439,6 +440,7 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
+            <LiveClock />
             {navLinks.map((link) => (
               <Link key={link.to} to={link.to}
                 className="nav-link text-sm font-medium"
@@ -632,6 +634,7 @@ export default function Navbar() {
             transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
           }}>
           <div className="flex flex-col gap-6" style={{ padding: '32px 28px' }}>
+            <LiveClock />
             <div className="flex flex-col gap-6 pb-6 border-b border-white/10">
               {navLinks.map((link) => (
                 <Link key={link.to} to={link.to}
