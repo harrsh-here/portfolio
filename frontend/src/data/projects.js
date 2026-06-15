@@ -1,5 +1,18 @@
 export const projects = [
   {
+    id: 'california-housing',
+    title: 'California Housing Price Prediction',
+    description:
+      'A machine learning regression workflow to predict median housing values. Evaluates single vs multi-feature models, data split ratios, and metric sensitivity to outliers.',
+    tags: ['AI/ML', 'Python', 'Regression'],
+    stack: ['Python', 'Pandas', 'NumPy', 'Scikit-learn', 'Matplotlib'],
+    status: 'Complete',
+    featured: true,
+    badge: 'NEW',
+    github: 'https://github.com/harrsh-here/aiml-crash-harrsh/tree/main/linear_regression',
+    link: '/projects/california-housing',
+  },
+  {
     id: 'movie-recommender',
     title: 'Movie Recommender System',
     description:
