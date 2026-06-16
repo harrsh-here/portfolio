@@ -19,7 +19,7 @@ function LinkedinIcon({ size = 18 }) {
 const socialLinks = [
   { icon: GithubIcon, href: 'https://github.com/harrsh-here', label: 'GitHub' },
   { icon: LinkedinIcon, href: 'https://linkedin.com/in/harsh-patidar-580726286', label: 'LinkedIn' },
-  { icon: Mail, href: 'mailto:harshptidar1234@gmail.com', label: 'Email' },
+  { icon: Mail, href: 'mailto:harrshhere@gmail.com', label: 'Email' },
   { icon: FileText, href: '/resume.pdf', label: 'Resume', external: true },
 ]
 

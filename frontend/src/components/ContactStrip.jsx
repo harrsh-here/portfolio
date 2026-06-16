@@ -184,7 +184,7 @@ export default function ContactStrip() {
           </div>
 
           <div className="contact-btn-wrapper">
-            <a href="mailto:harshptidar1234@gmail.com" target="_blank" rel="noopener noreferrer" className="contact-btn">
+            <a href="mailto:harrshhere@gmail.com" target="_blank" rel="noopener noreferrer" className="contact-btn">
               <Mail size={16} />
               Email
             </a>
