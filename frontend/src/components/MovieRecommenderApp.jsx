@@ -60,8 +60,8 @@ const findClosestMovieTitle = (inputTitle, allTitles) => {
 const fetchExtraDetails = async (title) => {
   try {
     const cleanTitle = formatDisplayTitle(title)
-    const apiKey = import.meta.env.VITE_OMDB_API_KEY || '968ca803' // Fallback for demo if env missing
-    const res = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(cleanTitle)}&apikey=${apiKey}`)
+    // Proxied through a Netlify Function so the OMDb API key stays server-side
+    const res = await fetch(`/api/omdb?t=${encodeURIComponent(cleanTitle)}`)
     if (res.ok) return await res.json()
   } catch (e) { /* silent */ }
   return null
