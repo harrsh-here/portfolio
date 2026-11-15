@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import './AuraHealthChat.css';
 import {
   ArrowRight, ArrowLeft, ExternalLink,
   Database, Brain, Shield, Layers, Search,
@@ -173,7 +174,7 @@ export default function AuraHealthNexusPage() {
     setChatMessages(prev => [...prev, { role: 'user', content: text }]);
 
     const match = matchKnowledge(text);
-    const thinkTime = 900 + Math.random() * 900;
+    const thinkTime = 1200;
 
     setTimeout(() => {
       setChatMessages(prev => {
@@ -432,311 +433,36 @@ export default function AuraHealthNexusPage() {
             Type any query — the system simulates real RAG behavior: semantic retrieval, sliding memory, input sanitization and rate limits exactly as the production system enforces them.
           </p>
 
-          {/* System Limits HUD */}
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: 10, marginBottom: 16 }}>
-            {[
-              {
-                icon: <Brain size={16} />,
-                label: 'Memory Window',
-                value: `${Math.min(Math.ceil(chatMessages.length / 2), CONTEXT_WINDOW)} / ${CONTEXT_WINDOW} turns`,
-                color: Math.ceil(chatMessages.length / 2) >= CONTEXT_WINDOW ? '#f472b6' : 'var(--accent-cyan)',
-                note: 'MAX_HISTORY_TURNS = 5',
-              },
-              {
-                icon: <Database size={16} />,
-                label: 'Chunk Retrieval',
-                value: 'k = 4 chunks',
-                color: 'var(--accent-blue)',
-                note: 'Cosine similarity',
-              },
-              {
-                icon: <Terminal size={16} />,
-                label: 'Input Length',
-                value: `${userInput.length} / ${MAX_INPUT_LENGTH}`,
-                color: userInput.length > 450 ? '#f59e0b' : 'var(--accent-cyan)',
-                note: 'MAX_INPUT_LENGTH = 500',
-              },
-              {
-                icon: <Cpu size={16} />,
-                label: 'Rate Limit',
-                value: `${queryCount} / ${RATE_LIMIT} queries`,
-                color: queryCount >= RATE_LIMIT ? '#f472b6' : '#4ade80',
-                note: queryCount >= RATE_LIMIT ? 'Quota exhausted' : 'Groq API quota sim',
-              },
-            ].map((item, i) => (
-              <div key={i} className="glass-panel" style={{ padding: '16px 18px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                  background: `color-mix(in srgb, ${item.color} 14%, transparent)`,
-                  border: `1px solid color-mix(in srgb, ${item.color} 22%, transparent)`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color,
-                }}>{item.icon}</div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>{item.label}</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: isMobile ? 14 : 15, fontWeight: 700, color: item.color }}>{item.value}</div>
-                  <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--text-muted)', marginTop: 4, opacity: 0.8 }}>{item.note}</div>
+          <div className="aura-chat">
+            <header className="aura-chat-header">
+              <div className="aura-chat-brand"><span className="aura-avatar"><Brain size={22} /></span><div><strong>AuraHealth Assistant</strong><span>Your guide to the sample knowledge base</span></div></div>
+              <button className="aura-reset" onClick={resetChat} disabled={isThinking}><RefreshCw size={15} /> New chat</button>
+            </header>
+            <div className="aura-chat-status"><span><span className="aura-status-dot" /> Interactive demo</span><span><Database size={13} /> Sample records</span><span>{queryCount} / {RATE_LIMIT} messages</span></div>
+            <div className="aura-messages" ref={chatContainerRef} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
+              {chatMessages.length === 0 && !isThinking && <div className="aura-welcome">
+                <div className="aura-welcome-icon"><Brain size={32} /></div>
+                <span className="aura-eyebrow">A LITTLE KNOWLEDGE. A BETTER ANSWER.</span>
+                <h3>What would you like to explore?</h3>
+                <p>Ask about schedules, maintenance, or sample protocols.<br />Explore an answer and the records behind it.</p>
+                <div className="aura-suggestions">{SUGGESTIONS.slice(0, 4).map(s => <button key={s.label} onClick={() => sendQuery(s.query)}><span>{s.label}</span><ArrowRight size={16} /></button>)}</div>
+              </div>}
+              {chatMessages.map((msg, i) => <div key={msg.id || i} className={`aura-message aura-message--${msg.role}`}>
+                {msg.role === 'assistant' && <span className="aura-avatar"><Brain size={18} /></span>}
+                <div className="aura-message-content"><span className="aura-message-author">{msg.role === 'user' ? 'You' : 'AuraHealth'}</span><div className="aura-bubble">{msg.content}</div>
+                  {msg.chunks && <><button className="aura-sources-toggle" aria-expanded={showChunks === msg.id} onClick={() => setShowChunks(showChunks === msg.id ? null : msg.id)}><Database size={13} /> {msg.chunks.length} sample excerpts <ChevronRight size={13} style={{ transform: showChunks === msg.id ? 'rotate(90deg)' : undefined }} /></button>
+                  {showChunks === msg.id && <div className="aura-sources">{msg.chunks.map((chunk, ci) => <div key={ci}><span>RECORD {String(ci + 1).padStart(2, '0')}</span><p>{chunk}</p></div>)}</div>}</>}
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Chat Console */}
-          <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-
-            {/* Terminal titlebar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: isMobile ? '10px 14px' : '11px 18px',
-              borderBottom: '1px solid var(--border-accent)',
-              background: 'rgba(0,0,0,0.25)',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ display: 'flex', gap: 5 }}>
-                  {['#f87171', '#fbbf24', '#4ade80'].map((c, i) => (
-                    <div key={i} style={{ width: 10, height: 10, borderRadius: '50%', background: c, opacity: 0.75 }} />
-                  ))}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: isMobile ? 9 : 11, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
-                  <Lock size={9} />
-                  {isMobile ? 'AuraHealth — Secure Console' : 'AuraHealth Nexus — Secure Internal Console [RAG v2.1]'}
-                </div>
-              </div>
-              <button onClick={resetChat} style={{
-                display: 'flex', alignItems: 'center', gap: 4,
-                fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-muted)',
-                background: 'none', border: '1px solid var(--border)', borderRadius: 6,
-                padding: '4px 10px', cursor: 'pointer', transition: 'all 0.2s ease',
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-cyan)'; e.currentTarget.style.color = 'var(--accent-cyan)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
-              >
-                <RefreshCw size={10} /> Reset
-              </button>
+              </div>)}
+              {isThinking && <div className="aura-message aura-message--assistant"><span className="aura-avatar"><Brain size={18} /></span><div className="aura-thinking"><span /><span /><span /><p>Checking sample records</p></div></div>}
+              {rateLimited && <div className="aura-limit" role="alert"><AlertCircle size={18} /> Demo limit reached. Start a new chat to continue.</div>}
             </div>
-
-            {/* Messages */}
-            <div
-              ref={chatContainerRef}
-              style={{ minHeight: 240, maxHeight: isMobile ? 360 : 440, overflowY: 'auto', padding: isMobile ? '16px 14px' : '20px 22px 12px' }}
-            >
-              {chatMessages.length === 0 && !isThinking && (
-                <div style={{ textAlign: 'center', padding: '36px 20px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                  <Shield size={30} style={{ margin: '0 auto 14px', opacity: 0.25, display: 'block', color: 'var(--accent-cyan)' }} />
-                  <div style={{ fontSize: 13, marginBottom: 6, color: 'var(--text-secondary)' }}>Awaiting authorized query...</div>
-                  <div style={{ fontSize: 11, opacity: 0.5 }}>Type below or pick a suggestion to query the classified database</div>
-                </div>
-              )}
-
-              {chatMessages.map((msg, i) => (
-                <div key={i} style={{ marginBottom: 18 }}>
-                  {msg.role === 'user' ? (
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-                      <div style={{
-                        maxWidth: isMobile ? '88%' : '72%',
-                        background: 'color-mix(in srgb, var(--accent-cyan) 10%, transparent)',
-                        border: '1px solid color-mix(in srgb, var(--accent-cyan) 20%, transparent)',
-                        borderRadius: '12px 12px 4px 12px',
-                        padding: isMobile ? '10px 13px' : '12px 16px',
-                        fontFamily: 'var(--font-sans)', fontSize: isMobile ? 13 : 14,
-                        color: 'var(--text-primary)', lineHeight: 1.6,
-                      }}>
-                        {msg.content}
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: isMobile ? 8 : 10, alignItems: 'flex-start' }}>
-                      <div style={{
-                        width: 30, height: 30, flexShrink: 0, borderRadius: 8,
-                        background: 'color-mix(in srgb, var(--accent-blue) 14%, transparent)',
-                        border: '1px solid color-mix(in srgb, var(--accent-blue) 22%, transparent)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-blue)',
-                      }}><Brain size={14} /></div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--accent-blue)', letterSpacing: '0.08em', marginBottom: 5, textTransform: 'uppercase' }}>AuraHealth AI</div>
-                        <div style={{
-                          background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-accent)',
-                          borderRadius: '4px 12px 12px 12px',
-                          padding: isMobile ? '10px 13px' : '13px 17px',
-                          fontFamily: 'var(--font-sans)', fontSize: isMobile ? 13 : 14,
-                          color: 'var(--text-primary)', lineHeight: 1.7,
-                        }}>
-                          {msg.content}
-                        </div>
-                        {msg.chunks && (
-                          <button onClick={() => setShowChunks(showChunks === msg.id ? null : msg.id)} style={{
-                            display: 'flex', alignItems: 'center', gap: 4, marginTop: 7,
-                            fontFamily: 'var(--font-mono)', fontSize: 10,
-                            color: showChunks === msg.id ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                            background: 'none', border: 'none', cursor: 'pointer',
-                            transition: 'color 0.2s ease', padding: 0,
-                          }}>
-                            <Database size={10} />
-                            {showChunks === msg.id ? 'Hide' : 'View'} retrieved chunks (k={msg.chunks.length})
-                            <ChevronRight size={10} style={{ transform: showChunks === msg.id ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease' }} />
-                          </button>
-                        )}
-                        {showChunks === msg.id && msg.chunks && (
-                          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                            {msg.chunks.map((chunk, ci) => (
-                              <div key={ci} style={{
-                                background: 'rgba(0,0,0,0.35)',
-                                border: '1px solid color-mix(in srgb, var(--accent-blue) 18%, transparent)',
-                                borderLeft: '3px solid var(--accent-blue)', borderRadius: '0 6px 6px 0',
-                                padding: '8px 12px',
-                                fontFamily: 'var(--font-mono)', fontSize: isMobile ? 9 : 11,
-                                color: 'var(--text-muted)', lineHeight: 1.65,
-                              }}>
-                                <span style={{ color: 'var(--accent-blue)', opacity: 0.8 }}>chunk_{ci + 1}: </span>{chunk}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {isThinking && (
-                <div style={{ display: 'flex', gap: isMobile ? 8 : 10, alignItems: 'flex-start' }}>
-                  <div style={{
-                    width: 30, height: 30, flexShrink: 0, borderRadius: 8,
-                    background: 'color-mix(in srgb, var(--accent-blue) 14%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--accent-blue) 22%, transparent)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-blue)',
-                  }}><Brain size={14} /></div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--accent-blue)', letterSpacing: '0.08em', marginBottom: 5, textTransform: 'uppercase' }}>AuraHealth AI</div>
-                    <div style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-accent)',
-                      borderRadius: '4px 12px 12px 12px', padding: '11px 16px',
-                      fontFamily: 'var(--font-mono)', fontSize: isMobile ? 10 : 11, color: 'var(--text-muted)',
-                    }}>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        {[0, 1, 2].map(j => (
-                          <div key={j} style={{
-                            width: 6, height: 6, borderRadius: '50%',
-                            background: 'var(--accent-blue)',
-                            animation: 'ragpulse 1.2s ease-in-out infinite',
-                            animationDelay: `${j * 0.22}s`,
-                          }} />
-                        ))}
-                      </div>
-                      Searching classified database (k=4)...
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {rateLimited && (
-                <div style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 10,
-                  background: 'color-mix(in srgb, #ef4444 8%, transparent)',
-                  border: '1px solid color-mix(in srgb, #ef4444 30%, transparent)',
-                  borderRadius: 10, padding: '13px 16px', marginTop: 8,
-                  fontFamily: 'var(--font-mono)', fontSize: isMobile ? 10 : 11, color: '#ef4444', lineHeight: 1.5,
-                }}>
-                  <AlertCircle size={15} style={{ flexShrink: 0, marginTop: 1 }} />
-                  <span>
-                    Rate limit reached ({RATE_LIMIT}/{RATE_LIMIT} queries).&nbsp;
-                    <span style={{ opacity: 0.7 }}>Simulates Groq API quota exhaustion — a hard production constraint.</span>&nbsp;
-                    <button onClick={resetChat} style={{ color: '#ef4444', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: 'inherit', textDecoration: 'underline' }}>Reset to continue.</button>
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Input area */}
-            <div style={{ borderTop: '1px solid var(--border-accent)', padding: isMobile ? '12px 14px' : '14px 18px', background: 'rgba(0,0,0,0.12)' }}>
-
-              {/* Suggestion chips */}
-              {chatMessages.length === 0 && !rateLimited && (
-                <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12, opacity: 0.7 }}>
-                    Suggested queries:
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {SUGGESTIONS.map((s, i) => (
-                      <button key={i} onClick={() => sendQuery(s.query)}
-                        disabled={isThinking || rateLimited}
-                        style={{
-                          fontFamily: 'var(--font-mono)', fontSize: isMobile ? 11 : 12, fontWeight: 600,
-                          padding: '6px 14px', borderRadius: 20,
-                          border: '1px solid var(--border-accent)',
-                          background: 'color-mix(in srgb, var(--accent-cyan) 5%, transparent)',
-                          color: 'var(--accent-cyan)', cursor: 'pointer',
-                          transition: 'all 0.18s ease', letterSpacing: '0.04em',
-                          opacity: isThinking ? 0.4 : 1,
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-cyan) 14%, transparent)'; e.currentTarget.style.borderColor = 'var(--accent-cyan)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'color-mix(in srgb, var(--accent-cyan) 5%, transparent)'; e.currentTarget.style.borderColor = 'var(--border-accent)'; }}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Text input */}
-              <div style={{
-                display: 'flex', alignItems: 'flex-end', gap: 10,
-                background: 'rgba(255,255,255,0.03)',
-                border: `1px solid ${rateLimited ? 'color-mix(in srgb, #f472b6 30%, transparent)' : userInput.length > 450 ? 'color-mix(in srgb, #f59e0b 40%, transparent)' : 'var(--border-accent)'}`,
-                borderRadius: 10, padding: '10px 12px',
-                transition: 'border-color 0.2s ease',
-              }}>
-                <Terminal size={14} style={{ color: 'var(--text-muted)', flexShrink: 0, marginBottom: 2 }} />
-                <textarea
-                  ref={inputRef}
-                  value={userInput}
-                  onChange={e => setUserInput(e.target.value.slice(0, MAX_INPUT_LENGTH))}
-                  onKeyDown={handleKeyDown}
-                  disabled={isThinking || rateLimited}
-                  placeholder={rateLimited ? '// Rate limit reached — reset to continue' : 'Ask anything about AuraHealth classified records...'}
-                  rows={1}
-                  style={{
-                    flex: 1, background: 'none', border: 'none', outline: 'none', resize: 'none',
-                    fontFamily: 'var(--font-mono)', fontSize: isMobile ? 12 : 13,
-                    color: rateLimited ? '#f472b6' : 'var(--text-primary)',
-                    lineHeight: 1.5, minHeight: 22, maxHeight: 80, overflowY: 'auto',
-                    caretColor: 'var(--accent-cyan)',
-                  }}
-                  onInput={e => {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
-                  }}
-                />
-                <button onClick={() => sendQuery()}
-                  disabled={isThinking || rateLimited || !userInput.trim()}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
-                    background: isThinking || rateLimited || !userInput.trim()
-                      ? 'rgba(255,255,255,0.04)'
-                      : 'color-mix(in srgb, var(--accent-cyan) 14%, transparent)',
-                    border: `1px solid ${isThinking || rateLimited || !userInput.trim() ? 'var(--border)' : 'var(--border-accent)'}`,
-                    borderRadius: 8, padding: isMobile ? '7px 10px' : '8px 14px',
-                    fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 700,
-                    color: isThinking || rateLimited || !userInput.trim() ? 'var(--text-muted)' : 'var(--accent-cyan)',
-                    cursor: isThinking || rateLimited || !userInput.trim() ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s ease', textTransform: 'uppercase', letterSpacing: '0.06em',
-                  }}
-                >
-                  <Send size={12} />{isMobile ? '' : ' Send'}
-                </button>
+            <div className="aura-composer-area">
+              <div className="aura-composer">
+                <textarea ref={inputRef} aria-label="Message AuraHealth" value={userInput} onChange={e => setUserInput(e.target.value.slice(0, MAX_INPUT_LENGTH))} onKeyDown={handleKeyDown} disabled={isThinking || rateLimited} placeholder="Ask AuraHealth a question…" rows={2} />
+                <div className="aura-composer-bottom"><span><Lock size={12} /> Browser-based demo</span><div><span>{userInput.length}/{MAX_INPUT_LENGTH}</span><button aria-label="Send message" onClick={() => sendQuery()} disabled={isThinking || rateLimited || !userInput.trim()}><Send size={17} /></button></div></div>
               </div>
-
-              <div style={{ marginTop: 6, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: 'var(--text-muted)', opacity: 0.55, letterSpacing: '0.04em' }}>
-                  Enter to send · Shift+Enter for newline · Sliding memory: last {CONTEXT_WINDOW} turns
-                </span>
-                {chatMessages.length >= CONTEXT_WINDOW * 2 && (
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#f472b6' }}>
-                    Context window full — oldest turns evicted
-                  </span>
-                )}
-              </div>
+              <div className="aura-chat-footnote"><span>Sample responses · Not medical advice</span><span>Enter to send · Shift + Enter for a new line</span></div>
             </div>
           </div>
         </div>

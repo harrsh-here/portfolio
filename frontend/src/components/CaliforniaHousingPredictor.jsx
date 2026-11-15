@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { HOUSING_API_URL as API_URL } from '../config/api';
 
 const FIELDS = [
   { key: 'med_inc',    label: 'Median Income',  unit: '×$10k',  min: 0.5,    max: 15,    step: 0.1,  default: 3.87,    tip: 'Block-group median income in tens of thousands of dollars.' },

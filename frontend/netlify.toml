@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Public browser-facing URLs only. Keep scanning credentials and other secrets.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_MOVIE_API_URL,VITE_PLACEMENT_API_URL,VITE_API_URL"
