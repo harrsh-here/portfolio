@@ -1,5 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
+gradio>=4.0.0
 scikit-learn
 pandas
 numpy

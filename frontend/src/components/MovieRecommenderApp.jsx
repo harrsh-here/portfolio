@@ -94,7 +94,35 @@ export default function MovieRecommenderApp({ onHasResults }) {
     }
   }, [recommendations.length, onHasResults])
 
-  const API_BASE_URL = import.meta.env.VITE_MOVIE_API_URL || 'http://localhost:8000'
+  const FALLBACK_MOVIES = [
+    { id: 1, title: 'Toy Story (1995)', genres: ['Animation', 'Children', 'Comedy'], rating: 4.2 },
+    { id: 2, title: 'GoldenEye (1995)', genres: ['Action', 'Adventure', 'Thriller'], rating: 3.8 },
+    { id: 3, title: 'Get Shorty (1995)', genres: ['Action', 'Comedy', 'Drama'], rating: 3.5 },
+    { id: 4, title: 'Twelve Monkeys (1995)', genres: ['Drama', 'Sci-Fi'], rating: 4.0 },
+    { id: 5, title: 'Babe (1995)', genres: ['Children', 'Comedy', 'Drama'], rating: 3.9 },
+    { id: 7, title: 'Seven (Se7en) (1995)', genres: ['Action', 'Thriller'], rating: 4.3 },
+    { id: 8, title: 'Usual Suspects, The (1995)', genres: ['Crime', 'Mystery', 'Thriller'], rating: 4.4 },
+    { id: 9, title: 'Toy Story 2 (1999)', genres: ['Animation', 'Children', 'Comedy'], rating: 4.1 },
+    { id: 10, title: 'Braveheart (1995)', genres: ['Action', 'Drama', 'War'], rating: 4.2 },
+    { id: 11, title: 'Apollo 13 (1995)', genres: ['Drama', 'IMAX'], rating: 4.0 },
+    { id: 12, title: 'Star Wars (1977)', genres: ['Action', 'Adventure', 'Sci-Fi'], rating: 4.6 },
+    { id: 13, title: 'Pulp Fiction (1994)', genres: ['Comedy', 'Crime', 'Drama'], rating: 4.5 },
+    { id: 14, title: 'Shawshank Redemption, The (1994)', genres: ['Crime', 'Drama'], rating: 4.7 },
+    { id: 15, title: 'Forrest Gump (1994)', genres: ['Comedy', 'Drama', 'Romance'], rating: 4.4 },
+    { id: 16, title: 'Lion King, The (1994)', genres: ['Animation', 'Children', 'Drama'], rating: 4.3 },
+    { id: 17, title: 'Jurassic Park (1993)', genres: ['Action', 'Adventure', 'Sci-Fi'], rating: 4.2 },
+    { id: 18, title: 'Blade Runner (1982)', genres: ['Action', 'Sci-Fi', 'Thriller'], rating: 4.2 },
+    { id: 19, title: 'Alien (1979)', genres: ['Action', 'Horror', 'Sci-Fi'], rating: 4.3 },
+    { id: 20, title: 'Terminator 2: Judgment Day (1991)', genres: ['Action', 'Sci-Fi'], rating: 4.4 },
+    { id: 21, title: 'Silence of the Lambs, The (1991)', genres: ['Crime', 'Horror', 'Thriller'], rating: 4.4 },
+    { id: 22, title: 'Fargo (1996)', genres: ['Comedy', 'Crime', 'Drama'], rating: 4.1 },
+    { id: 23, title: 'Godfather, The (1972)', genres: ['Crime', 'Drama'], rating: 4.8 },
+    { id: 24, title: 'Empire Strikes Back, The (1980)', genres: ['Action', 'Adventure', 'Sci-Fi'], rating: 4.6 },
+    { id: 25, title: 'Raiders of the Lost Ark (1981)', genres: ['Action', 'Adventure'], rating: 4.5 },
+    { id: 26, title: 'Return of the Jedi (1983)', genres: ['Action', 'Adventure', 'Sci-Fi'], rating: 4.4 },
+    { id: 27, title: 'Independence Day (ID4) (1996)', genres: ['Action', 'Adventure', 'Sci-Fi'], rating: 3.7 },
+    { id: 30, title: 'Matrix, The (1999)', genres: ['Action', 'Sci-Fi', 'Thriller'], rating: 4.5 }
+  ]
 
   const QUICK_PICKS = [
     'Toy Story (1995)',
@@ -108,6 +136,25 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setOverlayStatus(status)
     setShowStatusOverlay(true)
     setTimeout(() => setShowStatusOverlay(false), 5000)
+  }
+
+  function getFallbackRecommendations(selectedTitle) {
+    const target = FALLBACK_MOVIES.find(m => m.title.toLowerCase() === selectedTitle.toLowerCase()) || FALLBACK_MOVIES[0];
+    const targetGenres = new Set(target.genres);
+    return FALLBACK_MOVIES
+      .filter(m => m.title.toLowerCase() !== target.title.toLowerCase())
+      .map(m => {
+        const overlap = m.genres.filter(g => targetGenres.has(g)).length;
+        return {
+          id: m.id,
+          title: m.title,
+          genres: m.genres,
+          average_rating: m.rating,
+          overlap
+        };
+      })
+      .sort((a, b) => b.overlap - a.overlap || b.average_rating - a.average_rating)
+      .slice(0, 8);
   }
 
   useEffect(() => {
@@ -196,26 +243,6 @@ export default function MovieRecommenderApp({ onHasResults }) {
   const handleGetRecommendations = async (movieTitle = query) => {
     if (!movieTitle) return
     
-    if (!isBackendConnected) {
-      try {
-        const res = await fetch(`${API_BASE_URL}/health`)
-        if (res.ok) {
-          setIsBackendConnected(true)
-          prevConnectedRef.current = true
-        } else {
-          throw new Error('Offline')
-        }
-      } catch (err) {
-        setError('The inference server is offline. Please wait for the model to come online and try again.')
-        if (resultsRef.current) {
-          setTimeout(() => {
-            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }, 100)
-        }
-        return
-      }
-    }
-
     setLoading(true)
     setError(null)
     setShowSuggestions(false)
@@ -224,8 +251,8 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setExpandedCards({})
     setExtraData({})
 
-    // Apply fuzzy matching autocorrection
-    const correctedTitle = findClosestMovieTitle(movieTitle, allMovies) || movieTitle
+    const availableTitles = allMovies.length > 0 ? allMovies : FALLBACK_MOVIES.map(m => m.title);
+    const correctedTitle = findClosestMovieTitle(movieTitle, availableTitles) || movieTitle
     if (correctedTitle !== movieTitle) {
       setOriginalQuery(movieTitle)
     } else {
@@ -234,43 +261,44 @@ export default function MovieRecommenderApp({ onHasResults }) {
     setQuery(formatDisplayTitle(correctedTitle, true))
 
     try {
+      const controller = new AbortController();
+      const tId = setTimeout(() => controller.abort(), 5000);
       const res = await fetch(`${API_BASE_URL}/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ movie_title: correctedTitle, num_recommendations: 10 })
+        body: JSON.stringify({ movie_title: correctedTitle, num_recommendations: 10 }),
+        signal: controller.signal
       })
+      clearTimeout(tId);
 
-      if (!res.ok) throw new Error('Movie not found in dataset')
-
+      if (!res.ok) throw new Error('Movie not found');
       const data = await res.json()
       setRecommendations(data.recommendations)
 
-      // Fetch OMDb details for each recommendation
       data.recommendations.forEach(async (m) => {
         const details = await fetchExtraDetails(m.title)
-        if (details && details.Response !== 'False') {
+        if (details) {
           setExtraData(prev => ({ ...prev, [m.id]: details }))
         }
       })
-
-      setTimeout(() => {
-        setCardsVisible(true)
-        if (resultsRef.current) {
-          // Add a tiny delay so the DOM has a moment to expand
-          setTimeout(() => {
-            resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }, 100)
-        }
-      }, 50)
     } catch (err) {
-      setError('Movie not found or the inference server is offline. Please try another title or check back later.')
-      if (resultsRef.current) {
-        setTimeout(() => {
-          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 100)
-      }
+      // Graceful offline fallback
+      const fallbackRecs = getFallbackRecommendations(correctedTitle);
+      setRecommendations(fallbackRecs);
+      fallbackRecs.forEach(async (m) => {
+        const details = await fetchExtraDetails(m.title)
+        if (details) {
+          setExtraData(prev => ({ ...prev, [m.id]: details }))
+        }
+      });
     } finally {
       setLoading(false)
+      setTimeout(() => setCardsVisible(true), 50)
+      if (resultsRef.current) {
+        setTimeout(() => {
+          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 100)
+      }
     }
   }
 

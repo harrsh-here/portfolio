@@ -1,0 +1,68 @@
+{
+  "features": [
+    {
+      "name": "MedInc",
+      "label": "Median Income",
+      "unit": "($10k)",
+      "min": 0.5,
+      "max": 15.0,
+      "mean": 3.87
+    },
+    {
+      "name": "HouseAge",
+      "label": "House Age",
+      "unit": "(years)",
+      "min": 1.0,
+      "max": 52.0,
+      "mean": 28.64
+    },
+    {
+      "name": "AveRooms",
+      "label": "Avg Rooms",
+      "unit": "",
+      "min": 0.85,
+      "max": 141.91,
+      "mean": 5.43
+    },
+    {
+      "name": "AveBedrms",
+      "label": "Avg Bedrooms",
+      "unit": "",
+      "min": 0.33,
+      "max": 34.07,
+      "mean": 1.1
+    },
+    {
+      "name": "Population",
+      "label": "Population",
+      "unit": "",
+      "min": 3.0,
+      "max": 35682.0,
+      "mean": 1425.48
+    },
+    {
+      "name": "AveOccup",
+      "label": "Avg Occupants",
+      "unit": "",
+      "min": 0.69,
+      "max": 1243.33,
+      "mean": 3.07
+    },
+    {
+      "name": "Latitude",
+      "label": "Latitude",
+      "unit": "(\u00b0N)",
+      "min": 32.54,
+      "max": 41.95,
+      "mean": 35.63
+    },
+    {
+      "name": "Longitude",
+      "label": "Longitude",
+      "unit": "(\u00b0W)",
+      "min": -124.35,
+      "max": -114.31,
+      "mean": -119.57
+    }
+  ]
+}

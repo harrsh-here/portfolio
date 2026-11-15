@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from pathlib import Path
 from movie_recommender.router import router as movie_router
 from placement_predictor.router import router as placement_router
+from california_housing.router import router as california_router
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.include_router(movie_router)
 app.include_router(placement_router)
+app.include_router(california_router)
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -36,4 +38,6 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=3000, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 7860))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

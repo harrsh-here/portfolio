@@ -12,6 +12,7 @@ import {
   Activity,
   Target,
 } from 'lucide-react';
+import CaliforniaHousingPredictor from '../components/CaliforniaHousingPredictor';
 
 export default function CaliforniaHousingPage() {
   const [visible, setVisible] = useState(false);
@@ -234,12 +235,31 @@ export default function CaliforniaHousingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════
-          CHAPTER 02 — KEY FINDINGS
+          CHAPTER 02 — LIVE PREDICTOR
+      ═══════════════════════════════════════════════ */}
+      <section className="chapter-section" id="predictor">
+        <div className="section-container">
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
+            02 // Live Predictor
+          </div>
+          <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 12 }}>
+            Try It Live
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, color: 'var(--text-muted)', marginBottom: 40, maxWidth: 600 }}>
+            Interact with the trained model in real-time. Tune the 8 census features and see
+            how the Linear Regression model reacts to each input.
+          </p>
+          <CaliforniaHousingPredictor />
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          CHAPTER 03 — KEY FINDINGS
       ═══════════════════════════════════════════════ */}
       <section className="chapter-section" id="insights">
         <div className="section-container">
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-            02 // Key Findings
+            03 // Key Findings
           </div>
           <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 48 }}>
             Top 3 Takeaways
@@ -294,7 +314,7 @@ export default function CaliforniaHousingPage() {
       <section className="chapter-section" id="results">
         <div className="section-container">
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-            03 // Results
+            04 // Results
           </div>
           <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 48 }}>
             Full Metric Breakdown
@@ -386,7 +406,7 @@ export default function CaliforniaHousingPage() {
       <section className="chapter-section" id="pipeline">
         <div className="section-container">
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-            04 // Pipeline
+            05 // Pipeline
           </div>
           <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 48 }}>
             End-to-End Workflow
@@ -464,7 +484,7 @@ export default function CaliforniaHousingPage() {
       <section className="chapter-section" id="stack">
         <div className="section-container">
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
-            05 // Stack
+            06 // Stack
           </div>
           <h2 style={{ fontFamily: 'var(--font-mono)', fontSize: 36, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 40 }}>
             Built With

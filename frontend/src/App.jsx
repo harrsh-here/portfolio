@@ -11,6 +11,7 @@ import PortfolioProjectPage from './pages/PortfolioProjectPage'
 import HRAnalyticsPage from './pages/HRAnalyticsPage'
 import FuzNexPage from './pages/FuzNexPage'
 import CaliforniaHousingPage from './pages/CaliforniaHousingPage'
+import AuraHealthNexusPage from './pages/AuraHealthNexusPage'
 import DynamicBackground from './components/DynamicBackground'
 
 function CursorGlow() {
@@ -47,6 +48,7 @@ export default function App() {
             <Route path="/projects/hr-analytics" element={<HRAnalyticsPage />} />
             <Route path="/projects/fuznex" element={<FuzNexPage />} />
             <Route path="/projects/california-housing" element={<CaliforniaHousingPage />} />
+            <Route path="/projects/aurahealth-nexus" element={<AuraHealthNexusPage />} />
           </Routes>
         </main>
         <Footer />

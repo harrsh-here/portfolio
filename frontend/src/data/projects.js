@@ -1,5 +1,18 @@
 export const projects = [
   {
+    id: 'aurahealth-nexus',
+    title: 'AuraHealth Nexus (RAG)',
+    description:
+      'A fully offline, HIPAA-safe Retrieval-Augmented Generation system built as a Codetrade internship capstone. Forces Llama-3 to answer exclusively from a private ChromaDB vector store — eliminating hallucinations and data leaks entirely.',
+    tags: ['AI/ML', 'Python'],
+    stack: ['LangChain', 'ChromaDB', 'HuggingFace', 'Groq API', 'Llama-3', 'Python'],
+    status: 'Complete',
+    featured: true,
+    badge: 'CAPSTONE',
+    github: 'https://github.com/harrsh-here/aiml-crash-harrsh',
+    link: '/projects/aurahealth-nexus',
+  },
+  {
     id: 'california-housing',
     title: 'California Housing Price Prediction',
     description:
