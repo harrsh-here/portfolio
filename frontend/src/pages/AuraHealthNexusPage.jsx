@@ -72,17 +72,31 @@ const KNOWLEDGE_BASE = [
   },
 ];
 
+
+function sourceDocuments(chunks = []) {
+  const documents = new Map();
+  for (const chunk of chunks) {
+    const match = chunk.match(/^(.+?\.txt) \[(chunk \d+\/\d+)\]:\s*(.*)$/);
+    if (!match) continue;
+    const [, name, location, text] = match;
+    if (!documents.has(name)) documents.set(name, { name, excerpts: [] });
+    documents.get(name).excerpts.push({ location, text });
+  }
+  return [...documents.values()];
+}
+const SAMPLE_DOCUMENT_COUNT = sourceDocuments(KNOWLEDGE_BASE.flatMap(entry => entry.chunks)).length;
+
 function matchKnowledge(query) {
   const normalizedQuery = query.toLowerCase().trim();
   const queryWords = normalizedQuery.replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-  
+
   let bestMatch = null;
   let bestScore = 0;
-  
+
   for (const entry of KNOWLEDGE_BASE) {
     let score = 0;
     const entryText = (entry.keywords.join(' ') + ' ' + entry.answer + ' ' + entry.chunks.join(' ')).toLowerCase();
-    
+
     // Exact phrase match gives a massive boost
     if (normalizedQuery.length > 4 && entryText.includes(normalizedQuery)) {
       score += 15;
@@ -94,7 +108,7 @@ function matchKnowledge(query) {
         score += 2;
       }
     }
-    
+
     // Keyword specific matching
     for (const kw of entry.keywords) {
       if (normalizedQuery.includes(kw)) {
@@ -433,39 +447,64 @@ export default function AuraHealthNexusPage() {
             Type any query — the system simulates real RAG behavior: semantic retrieval, sliding memory, input sanitization and rate limits exactly as the production system enforces them.
           </p>
 
+          <div className="aura-stats" aria-label="Demo statistics">
+            <div><span>Sample documents</span><strong>{SAMPLE_DOCUMENT_COUNT}<small>in the demo library</small></strong></div>
+            <div><span>Visible history</span><strong>{chatMessages.filter(msg => msg.role === 'assistant').length}<small>/ {CONTEXT_WINDOW} completed turns</small></strong></div>
+            <div><span>Latest sources</span><strong>{sourceDocuments(chatMessages.filter(msg => msg.role === 'assistant').at(-1)?.chunks).length}<small>documents matched</small></strong></div>
+            <div><span>Session queries</span><strong>{queryCount}<small>/ {RATE_LIMIT} demo limit</small></strong></div>
+          </div>
           <div className="aura-chat">
+            <aside className="aura-rail" aria-label="Sample topics">
+              <div className="aura-wordmark"><span>au.</span> nexus</div>
+              <div className="aura-rail-label">THE KNOWLEDGE DESK</div>
+              <button className="aura-rail-new" onClick={resetChat} disabled={isThinking}><span>+</span> New conversation</button>
+              <div className="aura-rail-label">EXPLORE A TOPIC</div>
+              <nav>{SUGGESTIONS.map((s, i) => <button key={s.label} onClick={() => sendQuery(s.query)} disabled={isThinking || rateLimited}><span>{String(i + 1).padStart(2, '0')}</span>{s.label}</button>)}</nav>
+              <div className="aura-rail-bottom"><span>PORTFOLIO EDITION</span><p>A small window into<br />document-grounded answers.</p><span className="aura-rail-tag">LOCAL DEMONSTRATION</span></div>
+            </aside>
+            <div className="aura-chat-main">
             <header className="aura-chat-header">
-              <div className="aura-chat-brand"><span className="aura-avatar"><Brain size={22} /></span><div><strong>AuraHealth Assistant</strong><span>Your guide to the sample knowledge base</span></div></div>
-              <button className="aura-reset" onClick={resetChat} disabled={isThinking}><RefreshCw size={15} /> New chat</button>
+              <div className="aura-chat-brand"><div><strong>Workspace <span className="aura-slash">/</span> <span className="aura-current">Conversation</span></strong></div></div>
+              <button className="aura-reset" onClick={resetChat} disabled={isThinking}><RefreshCw size={14} /> Reset</button>
             </header>
-            <div className="aura-chat-status"><span><span className="aura-status-dot" /> Interactive demo</span><span><Database size={13} /> Sample records</span><span>{queryCount} / {RATE_LIMIT} messages</span></div>
+            <div className="aura-chat-status"><span><span className="aura-status-dot" /> Sample knowledge base</span><span>{queryCount} / {RATE_LIMIT} queries</span></div>
             <div className="aura-messages" ref={chatContainerRef} role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
               {chatMessages.length === 0 && !isThinking && <div className="aura-welcome">
-                <div className="aura-welcome-icon"><Brain size={32} /></div>
-                <span className="aura-eyebrow">A LITTLE KNOWLEDGE. A BETTER ANSWER.</span>
-                <h3>What would you like to explore?</h3>
-                <p>Ask about schedules, maintenance, or sample protocols.<br />Explore an answer and the records behind it.</p>
-                <div className="aura-suggestions">{SUGGESTIONS.slice(0, 4).map(s => <button key={s.label} onClick={() => sendQuery(s.query)}><span>{s.label}</span><ArrowRight size={16} /></button>)}</div>
+                <span className="aura-edition">AURAHEALTH / FIELD NOTES 001</span>
+
+                <h3>Less searching.<br /><em>More understanding.</em></h3>
+                <p>Start with a question. Follow the answer back to its source.</p>
+                <div className="aura-suggestions">{SUGGESTIONS.slice(0, 3).map((s, i) => <button key={s.label} onClick={() => sendQuery(s.query)}><span className="aura-question-number">0{i + 1}</span><span>{s.label}</span><ArrowRight size={14} /></button>)}</div>
               </div>}
               {chatMessages.map((msg, i) => <div key={msg.id || i} className={`aura-message aura-message--${msg.role}`}>
-                {msg.role === 'assistant' && <span className="aura-avatar"><Brain size={18} /></span>}
+                {msg.role === 'assistant' && <span className="aura-avatar">au.</span>}
                 <div className="aura-message-content"><span className="aura-message-author">{msg.role === 'user' ? 'You' : 'AuraHealth'}</span><div className="aura-bubble">{msg.content}</div>
-                  {msg.chunks && <><button className="aura-sources-toggle" aria-expanded={showChunks === msg.id} onClick={() => setShowChunks(showChunks === msg.id ? null : msg.id)}><Database size={13} /> {msg.chunks.length} sample excerpts <ChevronRight size={13} style={{ transform: showChunks === msg.id ? 'rotate(90deg)' : undefined }} /></button>
-                  {showChunks === msg.id && <div className="aura-sources">{msg.chunks.map((chunk, ci) => <div key={ci}><span>RECORD {String(ci + 1).padStart(2, '0')}</span><p>{chunk}</p></div>)}</div>}</>}
+                  {msg.chunks && (sourceDocuments(msg.chunks).length > 0 ? <>
+                    <button className="aura-sources-toggle" aria-expanded={showChunks === msg.id} aria-controls={`sources-${msg.id}`} onClick={() => setShowChunks(showChunks === msg.id ? null : msg.id)}><Database size={13} /> {showChunks === msg.id ? 'Hide' : 'View'} source documents ({sourceDocuments(msg.chunks).length}) <ChevronRight size={13} style={{ transform: showChunks === msg.id ? 'rotate(90deg)' : undefined }} /></button>
+                    {showChunks === msg.id && <div id={`sources-${msg.id}`} className="aura-sources">
+                      <p className="aura-source-note">Sample excerpts used for this demo answer. Full original files are not attached.</p>
+                      {sourceDocuments(msg.chunks).map(doc => <details className="aura-document" key={doc.name}>
+                        <summary><Database size={14} /><strong>{doc.name}</strong><span>{doc.excerpts.length} excerpt{doc.excerpts.length === 1 ? '' : 's'}</span><ChevronRight size={14} /></summary>
+                        {doc.excerpts.map((excerpt, index) => <div className="aura-document-excerpt" key={index}><span>{excerpt.location}</span><p>{excerpt.text}</p></div>)}
+                      </details>)}
+                    </div>}
+                  </> : <p className="aura-source-note">No matching source documents in this demo.</p>)}
+
                 </div>
               </div>)}
-              {isThinking && <div className="aura-message aura-message--assistant"><span className="aura-avatar"><Brain size={18} /></span><div className="aura-thinking"><span /><span /><span /><p>Checking sample records</p></div></div>}
+              {isThinking && <div className="aura-message aura-message--assistant"><span className="aura-avatar">au.</span><div className="aura-thinking"><span /><span /><span /><p>Checking sample records</p></div></div>}
               {rateLimited && <div className="aura-limit" role="alert"><AlertCircle size={18} /> Demo limit reached. Start a new chat to continue.</div>}
             </div>
             <div className="aura-composer-area">
               <div className="aura-composer">
                 <textarea ref={inputRef} aria-label="Message AuraHealth" value={userInput} onChange={e => setUserInput(e.target.value.slice(0, MAX_INPUT_LENGTH))} onKeyDown={handleKeyDown} disabled={isThinking || rateLimited} placeholder="Ask AuraHealth a question…" rows={2} />
-                <div className="aura-composer-bottom"><span><Lock size={12} /> Browser-based demo</span><div><span>{userInput.length}/{MAX_INPUT_LENGTH}</span><button aria-label="Send message" onClick={() => sendQuery()} disabled={isThinking || rateLimited || !userInput.trim()}><Send size={17} /></button></div></div>
+                <div className="aura-composer-bottom"><span><Lock size={12} /> Sample records only</span><div><span>{userInput.length}/{MAX_INPUT_LENGTH}</span><button aria-label="Send message" onClick={() => sendQuery()} disabled={isThinking || rateLimited || !userInput.trim()}><Send size={17} /></button></div></div>
               </div>
               <div className="aura-chat-footnote"><span>Sample responses · Not medical advice</span><span>Enter to send · Shift + Enter for a new line</span></div>
             </div>
           </div>
         </div>
+          </div>
       </section>
 
       {/* ═══ CHAPTER 03 — KEY FINDINGS ═══ */}
