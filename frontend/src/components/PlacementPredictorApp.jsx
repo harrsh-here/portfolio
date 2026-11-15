@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API_URL = import.meta.env.VITE_PLACEMENT_API_URL || 'http://localhost:5000';
+import { BACKEND_URL as API_URL } from '../config/api';
 
 export default function PlacementPredictorApp() {
   const [cgpa, setCgpa] = useState(7.5);

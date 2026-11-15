@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { BACKEND_URL as API_BASE_URL } from '../config/api'
 import { Search, Film, Star, ExternalLink, RefreshCw, ChevronDown, ChevronUp, User, Calendar, AlertCircle, Zap } from 'lucide-react'
 
 const formatDisplayTitle = (title, includeYear = false) => {
